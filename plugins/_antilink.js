@@ -21,7 +21,7 @@ export async function before(m, {
   const groupAdmins = participants.filter(p => p.admin);
 
   const listAdmin = groupAdmins
-    .map((v, i) => `› ${i + 1}. @${v.id.split('@')[0]}`)
+    .map((v, i) => `> ${i + 1}. @${v.id.split('@')[0]}`)
     .join('\n');
 
   let bot = global.db.data.settings[this.user.jid] || {};
@@ -33,13 +33,13 @@ export async function before(m, {
   const grupo = `https://chat.whatsapp.com`;
 
   if (isAdmin && chat.antiLink && m.text.includes(grupo)) {
-    return m.reply(
-      `⟡ Roxy-MD AntiLink ⟡
+    return m.reply(`
+\`Roxy-MD AntiLink\`
 
-◈ El AntiLink está activo.
+> El AntiLink está activo.
 
-› Te has salvado por ser administrador.`
-    );
+> Te has salvado por ser administrador.
+`);
   }
 
   if (chat.antiLink && isGroupLink && !isAdmin) {
@@ -54,14 +54,16 @@ export async function before(m, {
     await conn.sendMessage(
       m.chat,
       {
-        text: `⟡ Roxy-MD AntiLink ⟡
+        text: `
+\`Roxy-MD AntiLink\`
 
-◈ Enlace detectado
+> Enlace detectado.
 
-› Usuario: ${user}
-› Estado: Enlace no permitido
+> Usuario: ${user}
+> Estado: Enlace no permitido.
 
-✦ Acción: El usuario será eliminado.`,
+> Acción: Eliminación del usuario.
+`,
         mentions: [m.sender]
       },
       {
@@ -75,19 +77,23 @@ export async function before(m, {
       return conn.sendMessage(
         m.chat,
         {
-          text: `⟡ Roxy-MD AntiLink ⟡
+          text: `
+\`Roxy-MD AntiLink\`
 
-◈ El AntiLink está activo.
+> AntiLink activado.
 
-› No puedo eliminar al usuario
-  porque no soy administrador.
+> No puedo eliminar al usuario
+> porque no tengo permisos de administrador.
 
-✦ Administradores:
+> Administradores:
 
-${listAdmin}`,
+${listAdmin}
+`,
           mentions: [...groupAdmins.map(v => v.id)]
         },
-        { quoted: m }
+        {
+          quoted: m
+        }
       );
     }
 

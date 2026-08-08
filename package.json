@@ -18,13 +18,13 @@
 "eslint": "eslint .",
 "eslintfix": "eslint --fix ."
 },
-"homepage": "",
+"homepage": "https://github.com/Neykoor/Roxy-MD.git",
 "author": {
 "name": "Neykoors"
 },
 "repository": {
 "type": "git",
-"url": "git+"
+"url": "git+https://github.com/Neykoor/Roxy-MD.git"
 },
 "bugs": {
 "url": ""

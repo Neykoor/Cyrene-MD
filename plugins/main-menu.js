@@ -24,12 +24,13 @@ let handler = async (m, { conn, usedPrefix, __dirname, participants }) => {
     let phone = PhoneNumber('+' + userId)
     let pais = phone.getRegionCode() || 'Desconocido 🌐'
 
-    const vids = [
-      'https://files.cloudkuimages.guru/videos/0HMQaxtq.mp4',
-      'https://files.cloudkuimages.guru/videos/0HMQaxtq.mp4',
-      'https://files.cloudkuimages.guru/videos/0HMQaxtq.mp4'
-    ]
-    let videoUrl = vids[Math.floor(Math.random() * vids.length)]
+    const bannerPath = join(__dirname, '../src/Roxy-Md.jpg')
+    let bannerBuffer
+    try {
+      bannerBuffer = await fsPromises.readFile(bannerPath)
+    } catch (err) {
+      bannerBuffer = null
+    }
 
     const header = [
       `╔═━★•°*"'*°•★━═╗`,
@@ -60,7 +61,7 @@ let handler = async (m, { conn, usedPrefix, __dirname, participants }) => {
         },
         externalAdReply: {
           title: '໒֟፝🍉 ֪𝖱𝗈𝗑𝗒-𝖠𝖨',
-          body: '𝖱𝗈𝗑𝗒-𝖠𝗂 : 𝖡𝗋𝖺𝗒𝖺𝗇 𝖴𝗐𝗎 📌',
+          body: '𝖱𝗈𝗑𝗒-𝖠𝗂 ',
           mediaUrl: null,
           description: null,
           previewType: "PHOTO",
@@ -219,15 +220,15 @@ _#code_
     
     const botname = '🌸◌*̥₊ Rᴏxʏ-Mᴅ ◌❐🎋༉'
     const textbot = '💖 𝙍𝙊𝙓𝙔 𝘽𝙔 𝘿𝙀𝙑 𝘽𝙍𝘼𝙔𝘼𝙉 ✨️'
-    const banner = perfil
     const redes = 'https://whatsapp.com/channel/0029Vb6BDQc0lwgsDN1GJ31i'
     
     await conn.sendMessage(m.chat, {
-      video: { url: videoUrl },
+      image: bannerBuffer ? bannerBuffer : { url: perfil },
       caption: body,
-      gifPlayback: true,
-      mentions: [m.sender],  
-      ...metaMsg
+      mentions: [m.sender],
+      contextInfo: metaMsg.contextInfo
+    }, {
+      quoted: metaMsg.quoted
     })
 
   } catch (e) {
@@ -236,7 +237,7 @@ _#code_
       text: `✘ Error al enviar el menú: ${e.message}`,
       mentions: [m.sender] 
     }, { 
-      quoted: metaMsg 
+      quoted: global.fakeMetaMsg 
     })
   }
 }

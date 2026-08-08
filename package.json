@@ -1,5 +1,5 @@
 {
-"name": "the-roxy-md",
+"name": "Roxy-MD",
 "version": "2.2.0",
 "description": "WhatsApp Bot Multi Device ",
 "main": "index.js",
@@ -18,16 +18,16 @@
 "eslint": "eslint .",
 "eslintfix": "eslint --fix ."
 },
-"homepage": "https://github.com/El-brayan502/RoxyBot-MD",
+"homepage": "",
 "author": {
-"name": "DevBrayan"
+"name": "Neykoors"
 },
 "repository": {
 "type": "git",
-"url": "git+https://github.com/El-brayan502/RoxyBot-MD.git"
+"url": "git+"
 },
 "bugs": {
-"url": "https://github.com/El-brayan502/RoxyBot-MD/issues"
+"url": ""
 },
 "license": "GPL-3.0-or-later",
 "dependencies": {

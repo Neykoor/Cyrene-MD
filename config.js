@@ -94,6 +94,7 @@ ch1: '',
 
 //✎﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏
 
+global.APIKeys = {};
 global.MyApiRestBaseUrl = 'https://api.cafirexos.com';
 global.MyApiRestApikey = 'BrunoSobrino';
 global.openai_org_id = 'org-3';

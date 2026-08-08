@@ -31,7 +31,7 @@
 },
 "license": "MIT License",
 "dependencies": {
-"@whiskeysockets/baileys": "npm:@neykoor/baileys@7.0.15-rc15",
+"@whiskeysockets/baileys": "npm:violet-wa@7.0.0-rc14",
 "@hapi/boom": "^10.0.1",
 "awesome-phonenumber": "^3.4.0",
 "gradient-string": "^2.0.2",

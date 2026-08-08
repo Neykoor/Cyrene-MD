@@ -43,21 +43,38 @@ export async function before(m, { conn }) {
     if (m.messageStubType === 27 || m.messageStubType === 31) {
       await conn.sendMessage(m.chat, {
         text: `
-⟡ \`BIENVENIDA\` ⟡
+╭━━━〔 ✦ \`BIENVENIDA\` ✦ 〕━━━╮
 
-◈ Usuario: ${taguser}
+  Bienvenido a la familia, ${taguser}
+
+  Nos alegra mucho tenerte
+  como nuevo miembro del grupo.
+
+╰━━━━━━━━━━━━━━━━━━╯
+
+╭━━〔 INFORMACIÓN 〕━━╮
 
 › Nombre: ${name}
-› ID: ${user}
+› Usuario: ${user}
 › Fecha: ${fecha}
 
-╭──────────────╮
-  Bienvenido al grupo
-  ${groupMetadata.subject}
-╰──────────────╯
+╰━━━━━━━━━━━━━━━━━━╯
 
-› Lee las reglas del grupo
-› Disfruta tu estadía con nosotros.
+⟡ Grupo:
+${groupMetadata.subject}
+
+◈ Esperamos que disfrutes tu
+estadía, compartas buenos momentos
+y formes parte de esta comunidad.
+
+› Recuerda leer las reglas
+› Respeta a los demás miembros
+› Diviértete y participa
+
+╭━━━━━━━━━━━━━━━━━━╮
+  Gracias por unirte
+  a nuestra comunidad.
+╰━━━━━━━━━━━━━━━━━━╯
 `,
         mentions: [user]
       });
@@ -66,21 +83,36 @@ export async function before(m, { conn }) {
     if (m.messageStubType === 28 || m.messageStubType === 32) {
       await conn.sendMessage(m.chat, {
         text: `
-⟡ \`DESPEDIDA\` ⟡
+╭━━━〔 ✦ \`DESPEDIDA\` ✦ 〕━━━╮
 
-◈ Usuario: ${taguser}
+  Hasta pronto, ${taguser}
+
+  Un miembro de nuestra comunidad
+  ha decidido continuar su camino.
+
+╰━━━━━━━━━━━━━━━━━━╯
+
+╭━━〔 INFORMACIÓN 〕━━╮
 
 › Nombre: ${name}
-› ID: ${user}
+› Usuario: ${user}
 › Fecha: ${fecha}
 
-╭──────────────╮
-  Salió del grupo
-  ${groupMetadata.subject}
-╰──────────────╯
+╰━━━━━━━━━━━━━━━━━━╯
 
-› Gracias por formar parte
-› Te deseamos lo mejor.
+⟡ Grupo:
+${groupMetadata.subject}
+
+◈ Gracias por los momentos
+compartidos dentro del grupo.
+
+› Siempre tendrás las puertas
+abiertas para volver.
+
+╭━━━━━━━━━━━━━━━━━━╮
+  Te deseamos lo mejor
+  en tu próximo camino.
+╰━━━━━━━━━━━━━━━━━━╯
 `,
         mentions: [user]
       });

@@ -1,4 +1,4 @@
-let WAMessageStubType = (await import('@whiskeysockets/baileys')).default
+let { WAMessageStubType } = await import('@whiskeysockets/baileys')
 
 let handler = m => m
 handler.before = async function (m, { conn, participants, groupMetadata }) {
@@ -54,3 +54,4 @@ type: WAMessageStubType[m.messageStubType],
 })
 }}
 export default handler
+  

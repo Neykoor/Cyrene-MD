@@ -1,11 +1,7 @@
 import axios from 'axios'
-import {
-  generateWAMessageFromContent,
-  generateWAMessage,
-  delay,
-} from '@whiskeysockets/baileys'
+import { generateWAMessageFromContent, generateWAMessage, delay } from '@whiskeysockets/baileys'
 
-async function sendAlbumMessage(sock, jid, medias, options = {}) {
+async function sendAlbumMessage(conn, jid, medias, options = {}) {
   if (typeof jid !== 'string') throw new TypeError(`jid must be string, received: ${jid}`)
   if (medias.length < 2) throw new RangeError('Se necesitan al menos 2 imágenes para un álbum')
 
@@ -21,7 +17,7 @@ async function sendAlbumMessage(sock, jid, medias, options = {}) {
     {}
   )
 
-  await sock.relayMessage(album.key.remoteJid, album.message, {
+  await conn.relayMessage(album.key.remoteJid, album.message, {
     messageId: album.key.id,
   })
 
@@ -31,7 +27,7 @@ async function sendAlbumMessage(sock, jid, medias, options = {}) {
     const mediaMsg = await generateWAMessage(
       album.key.remoteJid,
       { [type]: data, ...(i === 0 ? { caption } : {}) },
-      { upload: sock.waUploadToServer }
+      { upload: conn.waUploadToServer }
     )
 
     mediaMsg.message.messageContextInfo = {
@@ -41,7 +37,7 @@ async function sendAlbumMessage(sock, jid, medias, options = {}) {
       },
     }
 
-    await sock.relayMessage(mediaMsg.key.remoteJid, mediaMsg.message, {
+    await conn.relayMessage(mediaMsg.key.remoteJid, mediaMsg.message, {
       messageId: mediaMsg.key.id,
     })
 
@@ -89,49 +85,46 @@ async function searchPinterest(query) {
     .filter(Boolean)
 }
 
-export default {
-  command:  ['pinterest', 'pin'],
-  category: 'buscador',
+let handler = async (message, { conn, text, usedPrefix, command }) => {
+  if (!text)
+    return conn.reply(message.chat, `*📌 Uso Correcto:* ${usedPrefix + command} Akame`, message, rcanal)
 
-  run: async ({ sock, m, text, usedPrefix, command }) => {
-    if (!text)
-      return sock.sendMessage(m.chat, {
-        text: `*📌 Uso Correcto:* ${usedPrefix + command} Akame`,
-      }, { quoted: m })
+  const chatData = global.db.data.chats[message.chat]
+  if (message.isGroup && !chatData?.nsfw) {
+    if (PALABRAS_PROHIBIDAS.some((w) => text.toLowerCase().includes(w)))
+      return conn.reply(message.chat, '🚩 *¡Esto está prohibido en el Grupo!*', message, rcanal)
+  }
 
-    const chatData = global.db.data.chats[m.chat]
-    if (m.isGroup && !chatData?.nsfw) {
-      if (PALABRAS_PROHIBIDAS.some((w) => text.toLowerCase().includes(w)))
-        return sock.sendMessage(m.chat, { text: '🚩 *¡Esto está prohibido en el Grupo!*' }, { quoted: m })
-    }
+  await message.react('📌')
+  await conn.reply(message.chat, '📌 *Descargando imágenes de Pinterest...*', message, rcanal)
 
-    await sock.sendMessage(m.chat, { react: { text: '💎', key: m.key } })
-    await sock.sendMessage(m.chat, { text: '📌 *Descargando imágenes de Pinterest...*' }, { quoted: m })
+  try {
+    const data = await searchPinterest(text)
 
-    try {
-      const data = await searchPinterest(text)
+    if (data.length < 2)
+      return conn.reply(message.chat, '❌ No se encontraron suficientes imágenes para un álbum.', message, rcanal)
 
-      if (data.length < 2)
-        return sock.sendMessage(m.chat, {
-          text: '❌ No se encontraron suficientes imágenes para un álbum.',
-        }, { quoted: m })
+    const images = data
+      .slice(0, 10)
+      .map((img) => ({
+        type: 'image',
+        data: { url: img.hd || img.mini },
+      }))
 
-      const images = data
-        .slice(0, 10)
-        .map((img) => ({
-          type: 'image',
-          data: { url: img.hd || img.mini },
-        }))
+    await sendAlbumMessage(conn, message.chat, images, {
+      caption: `📌 *Resultados de búsqueda para:* ${text}`,
+    })
 
-      await sendAlbumMessage(sock, m.chat, images, {
-        caption: `📌 *Resultados de búsqueda para:* ${text}`,
-      })
-
-    } catch (err) {
-      console.error(err)
-      await sock.sendMessage(m.chat, {
-        text: `⚠️ Error al obtener imágenes de Pinterest.\n${err.message}`,
-      }, { quoted: m })
-    }
-  },
+    await message.react('✅')
+  } catch (err) {
+    console.error(err)
+    await conn.reply(message.chat, `⚠️ Error al obtener imágenes de Pinterest.\n${err.message}`, message, rcanal)
+  }
 }
+
+handler.help = ['pinterest <texto>', 'pin <texto>']
+handler.tags = ['buscador']
+handler.command = ['pinterest', 'pin']
+handler.register = true
+
+export default handler

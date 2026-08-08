@@ -29,7 +29,7 @@
 "bugs": {
 "url": ""
 },
-"license": "GPL-3.0-or-later",
+"license": "MIT License",
 "dependencies": {
 "@whiskeysockets/baileys": "npm:@neykoor/baileys@7.0.15-rc15",
 "@hapi/boom": "^10.0.1",

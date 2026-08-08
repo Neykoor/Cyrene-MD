@@ -38,26 +38,22 @@ export async function before(m, { conn }) {
 
     if (m.messageStubType === 27 || m.messageStubType === 31) {
       await conn.sendMessage(m.chat, {
-        text: `
-⟡ ¡Bienvenido ${taguser} al grupo *${groupMetadata.subject}*!
+        text: `_⟡ ¡Bienvenido ${taguser} al grupo *${groupMetadata.subject}*!_
 
-⌁ Miembros: ${groupMetadata.participants.length}
+⌁ Miembros: \`${groupMetadata.participants.length}\`
 
-Por favor, lee las reglas y disfruta tu estadía.
-`,
+> Por favor, lee las reglas y disfruta tu estadía.`,
         mentions: [user]
       });
     }
 
     if (m.messageStubType === 28 || m.messageStubType === 32) {
       await conn.sendMessage(m.chat, {
-        text: `
-⟡ ¡Hasta pronto ${taguser}!
+        text: `_⟡ ¡Hasta pronto ${taguser}!_
 
-⌁ Un miembro menos en *${groupMetadata.subject}*.
+⌁ Miembros: \`${groupMetadata.participants.length}\`
 
-Gracias por haber formado parte del grupo. Te deseamos lo mejor.
-`,
+> Gracias por formar parte de *${groupMetadata.subject}*. Te deseamos lo mejor.`,
         mentions: [user]
       });
     }

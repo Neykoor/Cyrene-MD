@@ -120,6 +120,8 @@ global.icono = [
 
 global.rcanal = {}
 
+}
+
 export default handler
 
 function pickRandom(list) {

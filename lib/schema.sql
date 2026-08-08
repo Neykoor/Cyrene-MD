@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS users (
   jid            TEXT PRIMARY KEY,
   exp            INTEGER NOT NULL DEFAULT 0,

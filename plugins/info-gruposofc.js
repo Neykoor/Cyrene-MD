@@ -1,5 +1,5 @@
 import { join } from 'path'
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = await import('@whiskeysockets/baileys')
 
 let handler = async (m, { conn }) => {
   const proses = '✨️ Obteniendo información de los grupos oficiales...'

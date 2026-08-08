@@ -5,6 +5,7 @@ import { join } from 'path'
 import PhoneNumber from 'awesome-phonenumber'
 
 let handler = async (m, { conn, usedPrefix, __dirname, participants }) => {
+  let metaMsg
   try {
     await m.react('🍓')
 
@@ -47,7 +48,7 @@ let handler = async (m, { conn, usedPrefix, __dirname, participants }) => {
     }
 
 
-    const metaMsg = {
+    metaMsg = {
       quoted: global.fakeMetaMsg,
       contextInfo: {
         mentionedJid: [m.sender],

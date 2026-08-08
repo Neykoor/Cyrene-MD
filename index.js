@@ -42,10 +42,10 @@ let { say } = cfonts
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 async function showBanner() {
-    const aiMsg = chalk.hex('#ffb300').bold('🤖 ROXY-MD - Tu compañera virtual')
+    const aiMsg = chalk.hex('#ffb300').bold('💙 ROXY-MD - Tu compañera virtual')
     const tips = [
         chalk.hex('#ffb300')('💡 Tip: Usa /help para ver los comandos disponibles.'),
-        chalk.hex('#00eaff')('� Síguenos en GitHub para actualizaciones.'),
+        chalk.hex('#00eaff')('🩵 Síguenos en GitHub para actualizaciones.'),
         chalk.hex('#ff00cc')('✨ Disfruta de la experiencia premium de ROXY-MD.')
     ]
     const loadingFrames = [

@@ -1,72 +1,73 @@
-『 Roxy-MD 』
+✦ Roxy-MD
 
-«Bot de WhatsApp — Proyecto en construcción»
+«Bot de WhatsApp | Proyecto en construcción»
 
 ╭──────────────────────────────────────╮
-│  ✦ ROXY-MD                       │
-│  ────────────────────────────────    │
-│  Plataforma: "WhatsApp"              │
+│             ROXY-MD              │
+│                                      │
+│      WhatsApp Bot en desarrollo      │
 ╰──────────────────────────────────────╯
 
-〘 Sobre el proyecto 〙
+〘 Sobre Roxy-MD 〙
 
 Roxy-MD es un proyecto de bot para WhatsApp que actualmente se encuentra en construcción.
 
-El proyecto utiliza una base de código previamente existente como referencia, sobre la cual se realizaron modificaciones, limpieza y eliminación de diferentes partes del código.
+Este proyecto fue creado tomando como referencia una base de código existente, realizando modificaciones y eliminando partes del código original que no eran necesarias.
 
-«Importante: Roxy-MD no pretende presentarse como el proyecto original del que se tomó la base.»
+Roxy-MD no pretende atribuirse la autoría del proyecto original del cual se tomó dicha base.
 
-Se retiraron componentes y código que no se consideraron necesarios para este proyecto, con el objetivo de mantener una implementación propia y evitar conservar contenido que pudiera generar conflictos relacionados con derechos de autor.
-
----
-
-〘 Aviso de autoría 〙
-
-Este proyecto no afirma ser el creador de la base original utilizada durante el desarrollo.
-
-Roxy-MD es una versión modificada y en desarrollo, con cambios realizados sobre una base existente.
-
-El código considerado innecesario o que pudiera ocasionar problemas de autoría fue retirado durante el proceso de adaptación.
-
-Si eres autor de algún componente incluido accidentalmente y consideras que debe ser retirado o modificado, puedes abrir un Issue para revisarlo.
+«El objetivo es desarrollar una versión modificada y continuar trabajando sobre ella con cambios propios.»
 
 ---
 
-〘 Desarrollo 〙
+〘 Autoría 〙
 
-Roxy-MD se encuentra actualmente en construcción.
+La base utilizada durante el desarrollo no fue creada originalmente por Roxy-MD.
 
-El código puede recibir cambios importantes durante el desarrollo, incluyendo modificaciones, reemplazos o eliminación de determinadas partes del proyecto.
+Se realizaron cambios, limpieza y eliminación de código con el objetivo de evitar mantener partes innecesarias o contenido que pudiera generar conflictos relacionados con derechos de autor.
+
+Si algún autor considera que existe contenido que deba ser revisado o eliminado, puede abrir un Issue en este repositorio.
+
+---
+
+〘 Construcción 〙
+
+El proyecto todavía se encuentra en construcción.
+
+Durante el desarrollo pueden realizarse cambios importantes en la estructura, código y funcionamiento de Roxy-MD.
+
+Roxy-MD
+   │
+   ├── Base inicial
+   ├── Limpieza
+   ├── Modificaciones
+   ├── Código propio
+   └── Desarrollo continuo
 
 ---
 
 〘 Contribuciones 〙
 
-Las contribuciones, sugerencias y reportes de errores son bienvenidos.
+Si encuentras algún error o tienes alguna sugerencia, puedes abrir un Issue en este repositorio.
 
-Si encuentras algún problema:
-
-1. Revisa los Issues existentes.
-2. Abre un nuevo Issue si el problema no está reportado.
-3. Describe claramente cómo reproducirlo.
-4. Indica la versión de Roxy-MD utilizada.
+Las contribuciones y mejoras son bienvenidas.
 
 ---
 
 〘 Disclaimer 〙
 
-Roxy-MD es un proyecto independiente en construcción.
+Roxy-MD es un proyecto independiente y actualmente se encuentra en construcción.
 
-No se presenta como el proyecto original del que se tomó la base y no pretende atribuirse la autoría de código perteneciente a terceros.
+Este repositorio no pretende atribuirse la autoría de la base de código utilizada como referencia.
 
-El proyecto seguirá siendo modificado y limpiado durante su desarrollo.
+El proyecto ha sido modificado y continuará evolucionando durante su desarrollo.
 
 ---
 
-<div align="center">『 Roxy-MD 』
+<div align="center">✦ Roxy-MD ✦
 
-En construcción • Desarrollo activo • WhatsApp Bot
+"WhatsApp Bot"
 
-"© 2026 Roxy-MD"
+© 2026 Roxy-MD
 
 </div>

@@ -1,8 +1,3 @@
--- Roxy-MD · esquema relacional (InfinitySQLite / SQLite)
--- Booleanos se guardan como INTEGER 0/1 (SQLite no tiene tipo boolean nativo).
--- Columna `extra` (JSON) = catch-all para campos que algún plugin agregue
--- a futuro sin que haga falta un ALTER TABLE cada vez (Roxy-MD tiene un
--- patrón de "self-healing defaults" en handler.js que va sumando toggles).
 
 CREATE TABLE IF NOT EXISTS users (
   jid            TEXT PRIMARY KEY,
@@ -89,9 +84,7 @@ CREATE TABLE IF NOT EXISTS stats (
   extra          TEXT    NOT NULL DEFAULT '{}'
 );
 
--- msgs y sticker: casi no se usan hoy en el código (son boilerplate del
--- fork original), se dejan como key/value genérico por si algún plugin
--- ya les escribe algo que no detectamos por análisis estático.
+
 CREATE TABLE IF NOT EXISTS msgs (
   id             TEXT PRIMARY KEY,
   data           TEXT NOT NULL DEFAULT '{}'

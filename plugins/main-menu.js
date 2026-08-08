@@ -5,7 +5,6 @@ import { join } from 'path'
 import PhoneNumber from 'awesome-phonenumber'
 
 let handler = async (m, { conn, usedPrefix, __dirname, participants }) => {
-  let metaMsg
   try {
     await m.react('🍓')
 
@@ -42,35 +41,6 @@ let handler = async (m, { conn, usedPrefix, __dirname, participants }) => {
     const country = user.country || '';
     const isPremium = user.premium || false;
 
-
-    const channelRD = { 
-      id: '120363417186717632@newsletter', 
-      name: '𝖱𝗈𝗑𝗒 𝖡𝗈𝗍 𝖠𝖨 : 𝖢𝗁𝖺𝗇𝗇𝖾𝗅 𝖮𝖿𝗂𝖼𝗂𝖺𝗅'
-    }
-
-
-    metaMsg = {
-      quoted: global.fakeMetaMsg,
-      contextInfo: {
-        mentionedJid: [m.sender],
-        isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-          newsletterJid: channelRD.id,
-          serverMessageId: 100,
-          newsletterName: channelRD.name
-        },
-        externalAdReply: {
-          title: '໒֟፝🍉 ֪𝖱𝗈𝗑𝗒-𝖠𝖨',
-          body: '𝖱𝗈𝗑𝗒-𝖠𝗂 ',
-          mediaUrl: null,
-          description: null,
-          previewType: "PHOTO",
-          thumbnailUrl: 'https://files.catbox.moe/9i5o9z.jpg',
-          mediaType: 1,
-          renderLargerThumbnail: true
-        }
-      }
-    }
 
     const body = `
 *ര ׄ 🌟 ׅ Bienvenido a, Roxy MD*
@@ -225,10 +195,7 @@ _#code_
     await conn.sendMessage(m.chat, {
       image: bannerBuffer ? bannerBuffer : { url: perfil },
       caption: body,
-      mentions: [m.sender],
-      contextInfo: metaMsg.contextInfo
-    }, {
-      quoted: metaMsg.quoted
+      mentions: [m.sender]
     })
 
   } catch (e) {

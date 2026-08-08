@@ -1,10 +1,5 @@
 let { WAMessageStubType } = await import('@whiskeysockets/baileys')
 
-// Extrae un JID limpio de un parámetro de messageStubParameters.
-// A veces llega como string plano ("123@s.whatsapp.net"), a veces como
-// objeto {id, ...}, y a veces como un string con JSON adentro
-// ('{"id":"123@s.whatsapp.net",...}'). Sin esto, un .split('@') directo
-// corta en el @ equivocado y rompe el mensaje.
 function extractJid(param) {
   if (!param) return null
   if (typeof param === 'object') {
@@ -28,7 +23,7 @@ function extractJid(param) {
 let handler = m => m
 handler.before = async function (m, { conn, participants, groupMetadata }) {
 if (!m.messageStubType || !m.isGroup) return
-if (!m.sender) return // Verificar que m.sender esté definido
+if (!m.sender) return
 const fkontak = { "key": { "participants":"0@s.whatsapp.net", "remoteJid": "status@broadcast", "fromMe": false, "id": "Halo" }, "message": { "contactMessage": { "vcard": `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD` }}, "participant": "0@s.whatsapp.net"}  
 let chat = global.db.data.chats[m.chat]
 let usuario = `@${m.sender.split`@`[0]}`

@@ -1,5 +1,5 @@
 import axios from 'axios'
-const { generateWAMessageContent, generateWAMessageFromContent, proto } = (await import('@whiskeysockets/baileys')).default
+const { generateWAMessageContent, generateWAMessageFromContent, proto } = await import('@whiskeysockets/baileys')
 
 let handler = async (m, { conn }) => {
   const proses = '🌸 Obteniendo información de los creadores...'
@@ -14,27 +14,27 @@ let handler = async (m, { conn }) => {
 
   const owners = [
     {
-      name: 'DevBrayan',
-      desc: 'Creador Principal de NagiBotV3',
-      image: 'https://files.cloudkuimages.guru/images/fJk8xWXl.jpg',
+      name: '',
+      desc: '',
+      image: '',
       buttons: [
-        { name: 'WhatsApp', url: 'https://wa.me/50231458537' },
-        { name: 'Instagram', url: 'https://www.instagram.com/elbrayan502ff' },
-        { name: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61556686993783' },
-        { name: 'Telegram', url: 'https://t.me/DevBrayan' },
-        { name: 'TikTok', url: 'https://www.tiktok.com/@fantom_uwu_330' },
-        { name: 'PayPal', url: 'https://paypal.me/BrayanMoscoso' }
+        { name: 'WhatsApp', url: '' },
+        { name: 'Instagram', url: '' },
+        { name: 'Facebook', url: '' },
+        { name: 'Telegram', url: '' },
+        { name: 'TikTok', url: '' },
+        { name: 'PayPal', url: '' }
       ]
     },
     {
-      name: 'DavBrayan2',
-      desc: 'Co-Creador de Roxy-MD',
-      image: 'https://files.cloudkuimages.guru/images/MLrB6aiO.jpg',
+      name: '',
+      desc: '',
+      image: '',
       buttons: [
-        { name: 'WhatsApp', url: 'https://wa.me/573001533523' },
-        { name: 'Instagram', url: 'https://www.instagram.com/elbrayan502ff' },
-        { name: 'TikTok', url: 'https://www.tiktok.com/@fantom_uwu_330' },
-        { name: 'PayPal', url: 'https://paypal.me/davidryze' }
+        { name: 'WhatsApp', url: '' },
+        { name: 'Instagram', url: '' },
+        { name: 'TikTok', url: '' },
+        { name: 'PayPal', url: '' }
       ]
     }
   ]
@@ -78,7 +78,7 @@ let handler = async (m, { conn }) => {
         },
         interactiveMessage: proto.Message.InteractiveMessage.fromObject({
           body: proto.Message.InteractiveMessage.Body.create({
-            text: '✨️ Creadores de Roxy-MD & NagiBot-MD ✨️'
+            text: '✨️ Creadores de Roxy-MD✨️'
           }),
           footer: proto.Message.InteractiveMessage.Footer.create({
             text: 'Conoce a los desarrolladores del bot'

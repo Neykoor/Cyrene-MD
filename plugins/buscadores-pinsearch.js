@@ -57,10 +57,12 @@ async function sendAlbumMessage(jid, medias, options = {}) {
   return album;
 }
 
+const PINTEREST_API_URL = 'https://anime-xi-wheat.vercel.app/api/pinterest'; // ⚠️ Reemplaza esta URL si vuelve a caerse
+
 const pins = async (query) => {
   try {
-    const res = await axios.get(`https://anime-xi-wheat.vercel.app/api/pinterest?q=${encodeURIComponent(query)}`);
-    if (Array.isArray(res.data.images)) {
+    const res = await axios.get(`${PINTEREST_API_URL}?q=${encodeURIComponent(query)}`, { timeout: 15000 });
+    if (Array.isArray(res.data?.images)) {
       return res.data.images.map(url => ({
         image_large_url: url,
         image_medium_url: url,
@@ -69,7 +71,11 @@ const pins = async (query) => {
     }
     return [];
   } catch (err) {
-    console.error('💥 Error fetching pins:', err);
+    if (err.response) {
+      console.error(`💥 Pinterest API respondió ${err.response.status}: ${PINTEREST_API_URL}`);
+    } else {
+      console.error('💥 Error fetching pins:', err.message);
+    }
     return [];
   }
 };
@@ -85,7 +91,7 @@ let handler = async (m, { conn, text }) => {
   try {
     await m.react('🔍');
     const results = await pins(text);
-    if (!results.length) return conn.reply(m.chat, `🙄 No encontré nada con *${text}*. Probá con otra cosa, nene.`, m);
+    if (!results.length) return conn.reply(m.chat, `🙄 No encontré nada con *${text}*, o la API de Pinterest no está respondiendo ahora mismo. Probá de nuevo en un rato.`, m);
 
     const max = Math.min(results.length, 15);
     const medias = [];

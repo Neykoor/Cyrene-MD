@@ -1,3 +1,27 @@
+// Extrae el JID real de un participante, sin importar si llega como
+// string plano ("123@s.whatsapp.net"), objeto {id, phoneNumber, ...},
+// o un string con JSON adentro ('{"id":"123@lid","phoneNumber":"456@s.whatsapp.net",...}').
+// Prioriza phoneNumber (número real) sobre id (que puede venir en formato @lid).
+function resolveParticipantJid(raw) {
+  let obj = raw
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim()
+    if (trimmed.startsWith('{')) {
+      try {
+        obj = JSON.parse(trimmed)
+      } catch {
+        return trimmed
+      }
+    } else {
+      return trimmed
+    }
+  }
+  if (obj && typeof obj === 'object') {
+    return obj.phoneNumber || obj.id || obj.jid || obj.lid || null
+  }
+  return null
+}
+
 export async function before(m, { conn }) {
   if (!m.isGroup || !m.messageStubType || !m.messageStubParameters) return;
 
@@ -8,7 +32,10 @@ export async function before(m, { conn }) {
   const date = new Date();
   const fecha = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
 
-  for (const user of participants) {
+  for (const raw of participants) {
+    const user = resolveParticipantJid(raw);
+    if (!user) continue;
+
     let name = await conn.getName(user);
     const taguser = '@' + user.split('@')[0];
 

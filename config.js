@@ -50,7 +50,6 @@ global.moneda = 'dolares';
 
 // Iᗰᗩᘜ3ᑎᗴՏ ᑎO TOᑕᗩᖇ 📥
 global.catalogo = fs.readFileSync('./src/catalogo.jpg');
-global.photoSity = [catalogo]
 
 //✎﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏
 

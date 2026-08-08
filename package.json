@@ -32,6 +32,7 @@
 "license": "GPL-3.0-or-later",
 "dependencies": {
 "@whiskeysockets/baileys": "npm:@neykoor/baileys@7.0.15-rc15",
+"@hapi/boom": "^10.0.1",
 "@adiwajshing/keyed-db": "^0.2.4",
 "@bochilteam/scraper": "^4.2.4",
 "@bochilteam/scraper-sosmed": "^1.0.5",
@@ -83,6 +84,7 @@
 "syntax-error": "^1.4.0",
 "url-regex-safe": "^3.0.0",
 "uuid": "^10.0.0",
+"ws": "^8.18.0",
 "translate-google-api": "^1.0.4",
 "google-it": "^1.6.4",
 "yt-search": "^2.10.3",

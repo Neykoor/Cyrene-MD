@@ -1,7 +1,4 @@
-// Extrae el JID real de un participante, sin importar si llega como
-// string plano ("123@s.whatsapp.net"), objeto {id, phoneNumber, ...},
-// o un string con JSON adentro ('{"id":"123@lid","phoneNumber":"456@s.whatsapp.net",...}').
-// Prioriza phoneNumber (número real) sobre id (que puede venir en formato @lid).
+
 function resolveParticipantJid(raw) {
   let obj = raw
   if (typeof raw === 'string') {

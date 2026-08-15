@@ -28,25 +28,12 @@ if (age < 5) throw await tr('🚼 ¿Los bebés saben escribir? ✍️😳')
 user.name = name + '✓'.trim()
 user.age = age;
 user.regTime = +new Date();
-user.regPhase = 'language';
+user.regPhase = 'gender';
 user.registered = false; 
         
-let supportedLanguages = [
-{code: 'es', name: 'Español', aliases: ['español', 'spanish']},
-{code: 'en', name: 'English', aliases: ['inglés', 'ingles']},
-{code: 'pt', name: 'Português', aliases: ['portugues']},
-{code: 'id', name: 'Bahasa Indonesia', aliases: ['indonesio']},
-{code: 'fr', name: 'Francés', aliases: ['frances', 'french']},
-{code: 'de', name: 'Alemán', aliases: ['aleman', 'german']},
-{code: 'it', name: 'Italiano', aliases: ['italian']},
-{code: 'ar', name: 'Arab (عرب)', aliases: ['arabe', 'arabic']}
-];
+await conn.sendMessage(m.chat, {text: `📝 ${await tr("*Registro Paso 2: Selecciona tu género*")}\n\n1. Hombre 👨\n2. Mujer 👩\n3. Otro/No especificar\n\n> *${await tr("Responde con número o palabra")}*`, mentions: [m.sender]}, { quoted: m });
         
-let languageOptions = supportedLanguages.map((lang, i) => `${i + 1}. ${lang.name} (${lang.code})`).join('\n');
-        
-await conn.sendMessage(m.chat, {text: `📝 ${await tr("*Registro Paso 2: Selecciona tu idioma*")}\n\n${languageOptions}\n\n> *${await tr("Responde con número o nombre del idioma")}*`, mentions: [m.sender]}, { quoted: m });
-        
-user.regData = { name: name, age: age, supportedLanguages: supportedLanguages, who: who, usedPrefix: usedPrefix, rtotalreg: rtotalreg };
+user.regData = { name: name, age: age, who: who, usedPrefix: usedPrefix, rtotalreg: rtotalreg };
 }
 
 if (command == 'nserie' || command == 'myns' || command == 'sn') {
@@ -63,7 +50,6 @@ global.db.data.users[m.sender].money -= 400
 global.db.data.users[m.sender].limit -= 2
 global.db.data.users[m.sender].exp -= 150
 user.gender = null
-user.birthday = null
 user.registered = false
 conn.fakeReply(m.chat, await tr(`😢 Ya no estas registrado`), '0@s.whatsapp.net', await tr(`ᴿᵉᵍᶦˢᵗʳᵒ ᵉˡᶦᵐᶦⁿᵃᵈᵒ`, "registro eliminado"), 'status@broadcast', null, fake)
 }
@@ -106,25 +92,6 @@ delete user._regTimeout;
 }, 1 * 60 * 1000); // 1 minuto
 }
 
-if (user.regPhase === 'language') {
-let supportedLanguages = user.regData.supportedLanguages;
-let selectedLang = supportedLanguages.find((lang, i) =>
-text === (i + 1).toString() ||
-lang.code === text ||
-lang.name.toLowerCase() === text ||
-lang.aliases.includes(text));
-
-if (!selectedLang) {
-let languageOptions = supportedLanguages.map((lang, i) => `${i + 1}. ${lang.name} (${lang.code})`).join('\n');
-return m.reply(`📝 ${await tr("*Selecciona tu idioma:*\n\n")}${languageOptions}\n\n> *${await tr("Usa número o nombre del idioma")}*`);
-}
-
-user.language = selectedLang.code;
-user.languageName = selectedLang.name;
-user.regPhase = 'gender';
-return m.reply(await tr(`📝 *Registro Paso 3: Selecciona tu género*\n\n1. Hombre 👨\n2. Mujer 👩\n3. Otro/No especificar\n\n> *Responde con número o palabra*`));
-}
-
 if (user.regPhase === 'gender') {
 let genderMap = {'1': 'Hombre', 'hombre': 'Hombre', 'man': 'Hombre',
 '2': 'Mujer', 'mujer': 'Mujer', 'woman': 'Mujer',
@@ -137,41 +104,6 @@ return m.reply(await tr(`📝 *Selecciona tu género:*\n\n1. Hombre 👨\n2. Muj
 }
 
 user.gender = gender;
-user.regPhase = 'birthday';
-return m.reply(await tr(`📝 *Registro Paso 4: Fecha de cumpleaños (Opcional)*\n\nPuedes enviar tu fecha de cumpleaños en formato DD/MM/YYYY (ejemplo: 30/10/2000)\n\n> O escribe "saltar" para omitir este paso.`));
-}
-
-if (user.regPhase === 'birthday') {
-let birthday = null;
-
-if (text !== 'saltar') {
-let birthdayRegex = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/;
-let match = text.match(birthdayRegex);
-
-if (match) {
-let day = parseInt(match[1]);
-let month = parseInt(match[2]);
-let year = match[3] ? parseInt(match[3]) : null;
-
-if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
-let formattedDay = day.toString().padStart(2, '0');
-let formattedMonth = month.toString().padStart(2, '0');
-
-if (year) {
-let currentYear = new Date().getFullYear();
-if (year > currentYear || year < 1900) {
-return m.reply(await tr(`📝 *Año inválido*\n\nEl año debe estar entre 1900 y ${currentYear}\n\nIngresa en formato DD/MM/YYYY (ejemplo: 30/10/2005)\n\n> O escribe "saltar"`));
-}
-birthday = `${formattedDay}/${formattedMonth}/${year}`;
-} else {
-birthday = `${formattedDay}/${formattedMonth}`;
-}}}
-
-if (!birthday) {
-return m.reply(await tr(`📝 *Formato inválido*\n\nIngresa en formato DD/MM/YYYY (ejemplo: 30/10/2005)\n\n> O escribe "saltar"`));
-}}
-
-if (birthday) user.birthday = birthday;
 user.regPhase = null;
 user.registered = true;
 global.db.data.users[m.sender].money += 400;
@@ -185,8 +117,7 @@ await conn.sendMessage(m.chat, { text: `[ ✅ ${await tr("REGISTRO COMPLETADO")}
 
 ◉ *${await tr("Nombre")}:* ${user.name}
 ◉ *${await tr("Edad")}:* ${user.age} ${await tr("años")}
-◉ *${await tr("Género")}:* ${user.gender} ${genderEmoji} ${user.birthday ? `\n◉ *${await tr("Cumpleaños")}:* ${user.birthday}` : ''}
-◉ *${await tr("Idioma")}:* ${user.languageName || user.language.toUpperCase()}
+◉ *${await tr("Género")}:* ${user.gender} ${genderEmoji}
 ◉ *${await tr("Hora")}:* ${time} 🇦🇷
 ◉ *${await tr("Fecha")}:* ${date} ${userNationality ? `\n◉ *${await tr("País")}:* ${userNationality}` : ''}
 ◉ *${await tr("Número")}:* wa.me/${who.split`@`[0]}
@@ -210,8 +141,7 @@ let ppch = await conn.profilePictureUrl(who, 'image').catch(_ => imageUrl.getRan
 await global.conn.sendMessage(global.ch.ch1, { text: `◉ *${await tr("Usuarios")}:* ${m.pushName || 'Anónimo'}  ${userNationality ? `\n◉ *${await tr("País")}:* ${userNationality}` : ''}
 ◉ *${await tr("Verificación")}:* ${user.name}
 ◉ *${await tr("Edad")}:* ${user.age} ${await tr("años")}
-◉ *${await tr("Género")}:* ${user.gender} ${genderEmoji} ${user.birthday ? `\n◉ *${await tr("Cumpleaños")}:* ${user.birthday}` : ''}
-◉ *${await tr("Idioma")}:* ${user.languageName || user.language.toUpperCase()}
+◉ *${await tr("Género")}:* ${user.gender} ${genderEmoji}
 ◉ *${await tr("Fecha")}:* ${date}
 ◉ *Bot:* ${wm}
 ◉ *${await tr("Número de serie")}:*

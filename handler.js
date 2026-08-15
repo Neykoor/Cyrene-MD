@@ -108,6 +108,14 @@ if (!isNumber(user.bank))
 user.bank = 0
 if (!isNumber(user.warn))
 user.warn = 0
+if (!isNumber(user.wins))
+user.wins = 0
+if (!isNumber(user.losses))
+user.losses = 0
+if (!isNumber(user.draws))
+user.draws = 0
+if (!isNumber(user.spam))
+user.spam = 0
 } else
                 global.db.data.users[m.sender] = {
 exp: 0,
@@ -141,7 +149,12 @@ useDocument: false,
 bank: 0,
 role: 'Nuv',
 premium: false,
-premiumTime: 0,                 
+premiumTime: 0,
+warn: 0,
+wins: 0,
+losses: 0,
+draws: 0,
+spam: 0,
 }
 let chat = global.db.data.chats[m.chat]
 if (typeof chat !== 'object')
@@ -557,3 +570,4 @@ const users = [...new Set([...global.conns.filter((conn) => conn.user && conn.ws
 for (const userr of users) {
 userr.subreloadHandler(false)
 }}});
+    

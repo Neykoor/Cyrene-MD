@@ -48,7 +48,7 @@
 "file-type": "^18.0.0",
 "fluent-ffmpeg": "^2.1.2",
 "formdata-node": "^5.0.0",
-"jimp": "^0.22.12",
+"jimp": "^1.6.1",
 "@shineiichijo/marika": "^2.0.6",
 "google-libphonenumber": "3.2.38",
 "human-readable": "^0.2.1",

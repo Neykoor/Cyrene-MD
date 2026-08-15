@@ -1,4 +1,4 @@
-const { proto, generateWAMessage, areJidsSameUser } = (await import('@whiskeysockets/baileys')).default
+const { proto, generateWAMessage, areJidsSameUser } = (await import('@whiskeysockets/baileys'))
 
 export async function all(m, chatUpdate) {
   if (m.isBaileys) return;
@@ -23,4 +23,4 @@ export async function all(m, chatUpdate) {
   };
   this.ev.emit('messages.upsert', msg);
 }
- 
+

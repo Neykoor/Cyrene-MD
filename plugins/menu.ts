@@ -5,9 +5,6 @@ import os from "os";
 const MENU_IMAGE_PATH = path.join(process.cwd(), "src", "media", "menu-cover.jpg");
 const BUSINESS_THUMB_PATH = path.join(process.cwd(), "src", "media", "business-thumb.jpg");
 
-const CANAL_ID = "120363426626765423@newsletter";
-const CANAL_NOMBRE = "WhatsApp Business";
-
 function formatRAM(): { used: string; total: string } {
   const totalBytes = os.totalmem();
   const freeBytes = os.freemem();
@@ -25,39 +22,32 @@ function formatUptime(seconds: number): string {
   return `${h}h ${m}m ${s}s`;
 }
 
-async function sendBusinessCard(sock: any, chatId: string, quoted: any): Promise<void> {
-  const contextInfo: any = {
-    isForwarded: true,
-    forwardingScore: 9999999,
-    forwardedNewsletterMessageInfo: {
-      newsletterJid: CANAL_ID,
-      serverMessageId: "",
-      newsletterName: CANAL_NOMBRE,
+function buildFakeOrderQuote(): any {
+  const thumbnail = fs.existsSync(BUSINESS_THUMB_PATH) ? fs.readFileSync(BUSINESS_THUMB_PATH) : undefined;
+  const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
+
+  return {
+    key: {
+      fromMe: false,
+      participant: "0@s.whatsapp.net",
+      remoteJid: "status@broadcast",
+      id: `FAKE-ORDER-${uniqueSuffix}`,
     },
-    externalAdReply: {
-      title: CANAL_NOMBRE,
-      body: "",
-      mediaType: 1,
-      renderLargerThumbnail: false,
-      showAdAttribution: false,
+    message: {
+      orderMessage: {
+        orderTitle: "Pedido de Carlos_2take1-interative ✓",
+        itemCount: 12,
+        thumbnail,
+        surface: 1,
+        status: 2,
+        sellerJid: "0@s.whatsapp.net",
+        token: `FAKE-TOKEN-${uniqueSuffix}`,
+      },
     },
   };
-
-  if (fs.existsSync(BUSINESS_THUMB_PATH)) {
-    contextInfo.externalAdReply.thumbnail = fs.readFileSync(BUSINESS_THUMB_PATH);
-  }
-
-  await sock.sendMessage(
-    chatId,
-    {
-      text: "🛒 12 artículos\n🐙 Pedido de Carlos_2take1-interative ✓",
-      contextInfo,
-    },
-    { quoted }
-  );
 }
 
-async function sendMainMenu(sock: any, chatId: string, msg: any, startedAt: number): Promise<void> {
+async function sendMainMenu(sock: any, chatId: string, startedAt: number): Promise<void> {
   const ram = formatRAM();
   const responseMs = (Date.now() - startedAt).toFixed(2);
 
@@ -94,12 +84,11 @@ async function sendMainMenu(sock: any, chatId: string, msg: any, startedAt: numb
     content.image = fs.readFileSync(MENU_IMAGE_PATH);
   }
 
-  await sock.sendMessage(chatId, content, { quoted: msg });
+  await sock.sendMessage(chatId, content, { quoted: buildFakeOrderQuote() });
 }
 
 export async function sendMenu(sock: any, msg: any): Promise<void> {
   const chatId: string = msg.key.remoteJid;
   const startedAt = Date.now();
-  await sendBusinessCard(sock, chatId, msg);
-  await sendMainMenu(sock, chatId, msg, startedAt);
+  await sendMainMenu(sock, chatId, startedAt);
 }

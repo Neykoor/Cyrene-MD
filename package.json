@@ -1,5 +1,5 @@
 {
-  "name": "cyrene-Dm",
+  "name": "cyrene-DM",
   "version": "1.0.0-personalizado",
   "description": "Bot de WhatsApp con Baileys",
   "main": "dist/src/index.js",
@@ -13,9 +13,11 @@
   },
   "author": "Neykoor",
   "license": "ISC",
-  "engines": { "node": ">=20.0.0" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "dependencies": {
-    "baileysxs": "github:Neykoor/BaileysXS",
+    "baileysxs": "9.6.0",
     "axios": "^0.24.0",
     "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.12",

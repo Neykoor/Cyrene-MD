@@ -5,7 +5,7 @@ import os from "os";
 const MENU_IMAGE_PATH = path.join(__dirname, "..", "media", "menu-cover.jpg");
 const BUSINESS_THUMB_PATH = path.join(__dirname, "..", "media", "business-thumb.jpg");
 
-const CANAL_ID = "120363266665814365@newsletter";
+const CANAL_ID = "120363426626765423@newsletter";
 const CANAL_NOMBRE = "WhatsApp Business";
 
 function formatRAM(): { used: string; total: string } {

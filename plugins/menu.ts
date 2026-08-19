@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 
-const MENU_IMAGE_PATH = path.join(__dirname, "..", "media", "menu-cover.jpg");
-const BUSINESS_THUMB_PATH = path.join(__dirname, "..", "media", "business-thumb.jpg");
+const MENU_IMAGE_PATH = path.join(process.cwd(), "src", "media", "menu-cover.jpg");
+const BUSINESS_THUMB_PATH = path.join(process.cwd(), "src", "media", "business-thumb.jpg");
 
 const CANAL_ID = "120363426626765423@newsletter";
 const CANAL_NOMBRE = "WhatsApp Business";
@@ -72,7 +72,7 @@ async function sendMainMenu(sock: any, chatId: string, msg: any, startedAt: numb
     `Uptime: ${formatUptime(process.uptime())}\n` +
     `Kernel: ${os.release()}`;
 
-  const buttons = [
+  const interactiveButtons = [
     {
       name: "quick_reply",
       buttonParamsJson: JSON.stringify({ display_text: "☰ ATTAÇKE🕷️", id: "menu_attacke" }),
@@ -87,7 +87,7 @@ async function sendMainMenu(sock: any, chatId: string, msg: any, startedAt: numb
     caption,
     title: "2take1-Interative",
     subtitle: "🏷️ bot-Menú",
-    interactive: buttons,
+    interactiveButtons,
   };
 
   if (fs.existsSync(MENU_IMAGE_PATH)) {

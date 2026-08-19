@@ -34,7 +34,7 @@ async function sendBusinessCard(sock: any, chatId: string, quoted: any): Promise
       serverMessageId: "",
       newsletterName: CANAL_NOMBRE,
     },
-    externalAdReplyInfo: {
+    externalAdReply: {
       title: CANAL_NOMBRE,
       body: "",
       mediaType: 1,
@@ -44,7 +44,7 @@ async function sendBusinessCard(sock: any, chatId: string, quoted: any): Promise
   };
 
   if (fs.existsSync(BUSINESS_THUMB_PATH)) {
-    contextInfo.externalAdReplyInfo.thumbnail = fs.readFileSync(BUSINESS_THUMB_PATH);
+    contextInfo.externalAdReply.thumbnail = fs.readFileSync(BUSINESS_THUMB_PATH);
   }
 
   await sock.sendMessage(

@@ -2,8 +2,26 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 
-const MENU_IMAGE_PATH = path.join(process.cwd(), "src", "media", "menu-cover.jpg");
-const BUSINESS_THUMB_PATH = path.join(process.cwd(), "src", "media", "business-thumb.jpg");
+function resolveMediaPath(filename: string): string | undefined {
+  const candidates = [
+    path.join(__dirname, "..", "..", "src", "media", filename),
+    path.join(__dirname, "..", "src", "media", filename),
+    path.join(process.cwd(), "src", "media", filename),
+  ];
+
+  const found = candidates.find((candidate) => fs.existsSync(candidate));
+
+  if (!found) {
+    console.error(`[menu] no se encontro "${filename}". Rutas probadas:\n${candidates.join("\n")}`);
+  }
+
+  return found;
+}
+
+function loadMediaBuffer(filename: string): Buffer | undefined {
+  const filePath = resolveMediaPath(filename);
+  return filePath ? fs.readFileSync(filePath) : undefined;
+}
 
 function formatRAM(): { used: string; total: string } {
   const totalBytes = os.totalmem();
@@ -23,7 +41,7 @@ function formatUptime(seconds: number): string {
 }
 
 function buildFakeOrderQuote(): any {
-  const thumbnail = fs.existsSync(BUSINESS_THUMB_PATH) ? fs.readFileSync(BUSINESS_THUMB_PATH) : undefined;
+  const thumbnail = loadMediaBuffer("business-thumb.jpg");
   const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 
   return {
@@ -80,8 +98,11 @@ async function sendMainMenu(sock: any, chatId: string, startedAt: number): Promi
     interactiveButtons,
   };
 
-  if (fs.existsSync(MENU_IMAGE_PATH)) {
-    content.image = fs.readFileSync(MENU_IMAGE_PATH);
+  const menuImage = loadMediaBuffer("menu-cover.jpg");
+  if (menuImage) {
+    content.image = menuImage;
+  } else {
+    console.error("[menu] enviando menu sin imagen de portada, revisa el log de arriba");
   }
 
   await sock.sendMessage(chatId, content, { quoted: buildFakeOrderQuote() });

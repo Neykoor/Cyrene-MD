@@ -1,0 +1,40 @@
+{
+  "name": "cyrene-Dm",
+  "version": "1.0.0-personalizado",
+  "description": "Bot de WhatsApp con Baileys",
+  "main": "dist/src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "qr": "node dist/src/index.js qr",
+    "code": "node dist/src/index.js code",
+    "dev": "nodemon --watch src --watch plugins --ext ts --exec ts-node src/index.ts"
+  },
+  "author": "Neykoor",
+  "license": "ISC",
+  "engines": { "node": ">=20.0.0" },
+  "dependencies": {
+    "baileysxs": "github:Neykoor/BaileysXS",
+    "axios": "^0.24.0",
+    "chalk": "^4.1.2",
+    "cheerio": "^1.0.0-rc.12",
+    "figlet": "^1.8.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "form-data": "^4.0.0",
+    "form-data-encoder": "^4.0.2",
+    "formdata-node": "^6.0.3",
+    "node-webpmux": "^3.1.7",
+    "pino": "^8.14.1",
+    "qrcode-terminal": "^0.12.0",
+    "yargs": "^17.3.1"
+  },
+  "devDependencies": {
+    "@types/figlet": "^1.5.8",
+    "@types/fluent-ffmpeg": "^2.1.24",
+    "@types/node": "^20.11.0",
+    "nodemon": "^3.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,6 +1,7 @@
 import { sendMenu } from "../plugins/menu";
 import { sendPing } from "../plugins/ping";
 import { sendSticker } from "../plugins/sticker";
+import { sendPinterestImage } from "../plugins/pinterest";
 
 export async function handleCommand(
   sock: any,
@@ -23,6 +24,10 @@ export async function handleCommand(
 
   if (cmd === "s" || cmd === "sticker") {
     await sendSticker(sock, msg);
+  }
+
+  if (cmd === "pin" || cmd === "pinterest") {
+    await sendPinterestImage(sock, msg, args);
   }
 }
 

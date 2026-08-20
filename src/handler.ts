@@ -31,7 +31,7 @@ export async function handleCommand(
     await sendPinterestImage(sock, msg, args);
   }
 
-  if (cmd === "play") {
+if (cmd === "play" || cmd === "yt" || cmd === "yta") {
     await sendPlay(sock, msg, args.join(" ").trim());
   }
 }

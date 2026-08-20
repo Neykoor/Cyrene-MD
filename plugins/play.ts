@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import yts from "yt-search";
-import fetch from "node-fetch";
+import axios from "axios";
 import sharp from "sharp";
 import { fetchRandomPinterestImage } from "../src/libs/scraper";
 
@@ -139,9 +139,9 @@ async function downloadMedia(
     );
 
     const apiUrl = `${API_URL}?q=${encodeURIComponent(queryOrUrl)}&apiKey=${encodeURIComponent(API_KEY)}`;
-    const r = await fetch(apiUrl);
+    const r = await axios.get(apiUrl, { timeout: 90000 });
 
-    if (!r.ok) {
+    if (r.status !== 200 || !r.data) {
       await sock.sendMessage(
         chatId,
         { text: `✦ Error HTTP ${r.status} al procesar el audio.` },
@@ -150,9 +150,14 @@ async function downloadMedia(
       return;
     }
 
-    const data: any = await r.json();
+    const data: any = r.data;
     const firstItem = data?.result?.[0];
-    const fileUrl = firstItem?.download?.mp3 || firstItem?.downloads?.mp3?.url;
+    const fileUrl =
+      firstItem?.download?.mp3 ||
+      firstItem?.downloads?.mp3?.url ||
+      firstItem?.downloads?.mixed?.mp3 ||
+      firstItem?.dl?.mp3?.url ||
+      firstItem?.download?.url;
 
     if (!data?.status || !firstItem || !fileUrl) {
       await sock.sendMessage(
@@ -288,10 +293,8 @@ export async function sendPlay(
 
     if (thumbnail) {
       try {
-        const res = await fetch(thumbnail);
-        if (res.ok) {
-          content.image = Buffer.from(await res.arrayBuffer());
-        }
+        const res = await axios.get(thumbnail, { responseType: "arraybuffer", timeout: 15000 });
+        content.image = Buffer.from(res.data);
       } catch {
         const fallback = loadMediaBuffer("menu-cover.jpg");
         if (fallback) content.image = fallback;

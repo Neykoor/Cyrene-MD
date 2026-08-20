@@ -3,10 +3,11 @@ import axios from "axios";
 const API_URL = "https://anabot.my.id/api/search/pinterest";
 const API_KEY = "freeApikey";
 
-export const PINTEREST_QUERIES = ["cyrene honkai star rail icon", "Japonesas icon"];
+const DEFAULT_PINTEREST_QUERIES = ["cyrene honkai star rail icon", "Japonesas icon"];
 
 function pickRandomQuery(): string {
-  return PINTEREST_QUERIES[Math.floor(Math.random() * PINTEREST_QUERIES.length)];
+  const queries = global.pinterestQueries?.length ? global.pinterestQueries : DEFAULT_PINTEREST_QUERIES;
+  return queries[Math.floor(Math.random() * queries.length)];
 }
 
 function pickImageUrl(pin: any): string {

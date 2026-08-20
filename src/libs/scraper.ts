@@ -1,6 +1,10 @@
 import axios from "axios";
 
-export const PINTEREST_QUERY = "anime girl aesthetic";
+export const PINTEREST_QUERIES = ["cyrene honkai star rail icon", "Japonesas icon"];
+
+function pickRandomQuery(): string {
+  return PINTEREST_QUERIES[Math.floor(Math.random() * PINTEREST_QUERIES.length)];
+}
 
 const PINTEREST_APIS = [
   (query: string) =>
@@ -17,7 +21,7 @@ const PINTEREST_APIS = [
       .then((r) => r.data?.data),
 ];
 
-export async function searchPinterestImages(query: string = PINTEREST_QUERY): Promise<string[]> {
+export async function searchPinterestImages(query: string = pickRandomQuery()): Promise<string[]> {
   const errors: Error[] = [];
 
   for (const call of PINTEREST_APIS) {
@@ -36,7 +40,7 @@ export async function searchPinterestImages(query: string = PINTEREST_QUERY): Pr
   throw new Error(`Todas las APIs de Pinterest fallaron: ${errors.map((e) => e.message).join(", ")}`);
 }
 
-export async function fetchRandomPinterestImage(query: string = PINTEREST_QUERY): Promise<Buffer> {
+export async function fetchRandomPinterestImage(query: string = pickRandomQuery()): Promise<Buffer> {
   const urls = await searchPinterestImages(query);
   const randomUrl = urls[Math.floor(Math.random() * urls.length)];
 

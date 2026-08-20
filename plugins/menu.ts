@@ -4,18 +4,18 @@ import os from "os";
 import sharp from "sharp";
 import { fetchRandomPinterestImage } from "../src/libs/scraper";
 
-function resolveMediaPath(filename: string): string | undefined {
+function resolveMediaPath(relativePath: string): string | undefined {
   const candidates = [
-    path.join(__dirname, "..", "..", "src", "media", filename),
-    path.join(__dirname, "..", "src", "media", filename),
-    path.join(process.cwd(), "src", "media", filename),
+    path.join(process.cwd(), relativePath),
+    path.join(__dirname, "..", relativePath),
+    path.join(__dirname, "..", "..", relativePath),
   ];
 
   const found = candidates.find((candidate) => fs.existsSync(candidate));
 
   if (!found) {
     console.error(
-      `[menu] no se encontró "${filename}". Rutas probadas:\n${candidates.join(
+      `[menu] no se encontró "${relativePath}". Rutas probadas:\n${candidates.join(
         "\n"
       )}`
     );
@@ -24,8 +24,8 @@ function resolveMediaPath(filename: string): string | undefined {
   return found;
 }
 
-function loadMediaBuffer(filename: string): Buffer | undefined {
-  const filePath = resolveMediaPath(filename);
+function loadMediaBuffer(relativePath: string): Buffer | undefined {
+  const filePath = resolveMediaPath(relativePath);
   return filePath ? fs.readFileSync(filePath) : undefined;
 }
 
@@ -34,7 +34,7 @@ let cachedFallbackThumbnail: Buffer | undefined;
 async function getLocalFallbackThumbnail(): Promise<Buffer | undefined> {
   if (cachedFallbackThumbnail) return cachedFallbackThumbnail;
 
-  const raw = loadMediaBuffer("business-thumb.jpg");
+  const raw = loadMediaBuffer(global.media.businessThumb);
   if (!raw) return undefined;
 
   try {
@@ -187,7 +187,7 @@ async function sendMainMenu(
     },
   };
 
-  const menuImage = loadMediaBuffer("menu-cover.jpg");
+  const menuImage = loadMediaBuffer(global.media.menuCover);
 
   if (menuImage) {
     content.image = menuImage;
@@ -209,4 +209,4 @@ export async function sendMenu(
   const startedAt = Date.now();
 
   await sendMainMenu(sock, msg, startedAt);
-}
+      }

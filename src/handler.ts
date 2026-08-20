@@ -1,5 +1,6 @@
 import { sendMenu } from "../plugins/principal/menu";
 import { downloadAndSend } from "../plugins/descargas/play";
+import { handleGenCharButton } from "../plugins/gacha/genchar";
 import { loadPlugins, getCommandHandler } from "./pluginLoader";
 
 loadPlugins();
@@ -46,5 +47,10 @@ export async function handleButtonClick(
 
   if (buttonId === "menu_main") {
     await sendMenu(sock, msg);
+    return;
+  }
+
+  if (buttonId.startsWith("genchar_rating_")) {
+    await handleGenCharButton(sock, msg, buttonId);
   }
 }

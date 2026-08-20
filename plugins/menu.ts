@@ -91,23 +91,18 @@ async function sendMainMenu(sock: any, chatId: string, startedAt: number): Promi
     },
   ];
 
-  const SEND_MENU_IMAGE = false;
-
   const content: any = {
     caption,
     title: "2take1-Interative",
     subtitle: "🏷️ bot-Menú",
     interactiveButtons,
-    interactiveAsTemplate: true,
   };
 
-  if (SEND_MENU_IMAGE) {
-    const menuImage = loadMediaBuffer("menu-cover.jpg");
-    if (menuImage) {
-      content.image = menuImage;
-    } else {
-      console.error("[menu] enviando menu sin imagen de portada, revisa el log de arriba");
-    }
+  const menuImage = loadMediaBuffer("menu-cover.jpg");
+  if (menuImage) {
+    content.image = menuImage;
+  } else {
+    console.error("[menu] enviando menu sin imagen de portada, revisa el log de arriba");
   }
 
   await sock.sendMessage(chatId, content, { quoted: buildFakeOrderQuote() });

@@ -1,15 +1,9 @@
-export async function sendPing(
-  sock: any,
-  msg: any,
-  startedAt: number
-): Promise<void> {
+export async function sendPing(sock: any, msg: any): Promise<void> {
   const chatId: string = msg.key.remoteJid;
 
-  const responseMs = (Date.now() - startedAt).toFixed(2);
+  const t0 = Date.now();
+  await sock.sendMessage(chatId, { text: "🏓 Pong!" }, { quoted: msg });
+  const responseMs = (Date.now() - t0).toFixed(2);
 
-  await sock.sendMessage(
-    chatId,
-    { text: `🏓 *Pong!*\n⌁ Velocidad: ${responseMs} ms` },
-    { quoted: msg }
-  );
+  await sock.sendMessage(chatId, { text: `⌁ Velocidad: ${responseMs} ms` }, { quoted: msg });
 }

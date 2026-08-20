@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import sharp from "sharp";
+import { fetchRandomPinterestImage } from "../src/libs/scraper";
 
 function resolveMediaPath(filename: string): string | undefined {
   const candidates = [
@@ -26,29 +27,37 @@ function loadMediaBuffer(filename: string): Buffer | undefined {
   return filePath ? fs.readFileSync(filePath) : undefined;
 }
 
-let cachedThumbnail: Buffer | undefined;
+let cachedFallbackThumbnail: Buffer | undefined;
 
-async function getOrderThumbnail(): Promise<Buffer | undefined> {
-  if (cachedThumbnail) return cachedThumbnail;
+async function getLocalFallbackThumbnail(): Promise<Buffer | undefined> {
+  if (cachedFallbackThumbnail) return cachedFallbackThumbnail;
 
   const raw = loadMediaBuffer("business-thumb.jpg");
   if (!raw) return undefined;
 
   try {
-    cachedThumbnail = await sharp(raw)
+    cachedFallbackThumbnail = await sharp(raw)
+      .resize(120, 120, { fit: "cover" })
+      .jpeg({ quality: 60, progressive: false })
+      .toBuffer();
+  } catch {
+    cachedFallbackThumbnail = raw;
+  }
+
+  return cachedFallbackThumbnail;
+}
+
+async function getOrderThumbnail(): Promise<Buffer | undefined> {
+  try {
+    const raw = await fetchRandomPinterestImage();
+    return await sharp(raw)
       .resize(120, 120, { fit: "cover" })
       .jpeg({ quality: 60, progressive: false })
       .toBuffer();
   } catch (err) {
-    console.error(
-      "[menu] no se pudo generar el thumbnail con sharp:",
-      err
-    );
-
-    cachedThumbnail = raw;
+    console.error("[menu] no se pudo traer imagen de Pinterest, uso el fallback local:", err);
+    return getLocalFallbackThumbnail();
   }
-
-  return cachedThumbnail;
 }
 
 function formatRAM(): { used: string; total: string } {

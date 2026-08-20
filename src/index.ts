@@ -6,7 +6,7 @@ import figlet from "figlet";
 import fs from "fs";
 import readline from "readline";
 import pino from "pino";
-import "./config";
+import "../config";
 import { handleCommand, handleButtonClick } from "./handler";
 
 function extractButtonId(msg: any): string | undefined {
@@ -220,4 +220,5 @@ setInterval(async () => {
 
   await startBot();
 })();
-      
+
+        

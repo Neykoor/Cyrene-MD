@@ -12,6 +12,10 @@ declare global {
   // eslint-disable-next-line no-var
   var allowedPrefixes: string[];
   // eslint-disable-next-line no-var
+  var pinterestQueries: string[];
+  // eslint-disable-next-line no-var
+  var media: { menuCover: string; businessThumb: string };
+  // eslint-disable-next-line no-var
   var isOwner: (user: string) => boolean;
   // eslint-disable-next-line no-var
   var setPrefix: (newPrefix: string) => void;

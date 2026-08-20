@@ -85,6 +85,8 @@ if (!alreadyInitialized) {
   } else {
     seedDefaults();
   }
+} else {
+  insertQueries(defaultConfig.pinterestQueries);
 }
 
 function readConfig(): ConfigFile {

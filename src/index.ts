@@ -7,7 +7,28 @@ import fs from "fs";
 import readline from "readline";
 import pino from "pino";
 import "./config";
-import { handleCommand } from "./handler";
+import { handleCommand, handleButtonClick } from "./handler";
+
+function extractButtonId(msg: any): string | undefined {
+  const message = msg.message || {};
+
+  const nativeFlowParams =
+    message.interactiveResponseMessage?.nativeFlowResponseMessage?.paramsJson;
+  if (nativeFlowParams) {
+    try {
+      const parsed = JSON.parse(nativeFlowParams);
+      if (parsed?.id) return parsed.id;
+    } catch {
+      // paramsJson inválido, se prueban los formatos siguientes
+    }
+  }
+
+  return (
+    message.buttonsResponseMessage?.selectedButtonId ||
+    message.templateButtonReplyMessage?.selectedId ||
+    undefined
+  );
+}
 
 const { readdirSync, statSync, unlinkSync } = fs;
 const { join } = path;
@@ -156,6 +177,12 @@ setInterval(async () => {
           console.log(chalk.cyan(`💬 Mensaje: ${chalk.bold(messageText || "📂 (Mensaje multimedia)")}`));
           console.log(chalk.gray("──────────────────────────"));
 
+          const buttonId = extractButtonId(msg);
+          if (buttonId) {
+            await handleButtonClick(sock, msg, buttonId);
+            return;
+          }
+
           if (messageText.startsWith(global.prefix)) {
             const command = messageText.slice(global.prefix.length).trim().split(" ")[0];
             const args = messageText.slice(global.prefix.length + command.length).trim().split(" ");
@@ -193,3 +220,4 @@ setInterval(async () => {
 
   await startBot();
 })();
+      

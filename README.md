@@ -67,6 +67,7 @@ Gracias a las personas que participan o ayudan en el desarrollo de Cyrene-MD.
 
 - [HereDreyciJS](https://github.com/HereDreyciJS)
 - [LuferOS](https://github.com/LuferOS)
+- [yosue891](https://github.com/yosue891)
 
 ## 👑 Creador
 

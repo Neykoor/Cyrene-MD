@@ -19,7 +19,6 @@ function extractButtonId(msg: any): string | undefined {
       const parsed = JSON.parse(nativeFlowParams);
       if (parsed?.id) return parsed.id;
     } catch {
-      // paramsJson inválido, se prueban los formatos siguientes
     }
   }
 
@@ -32,39 +31,6 @@ function extractButtonId(msg: any): string | undefined {
 
 const { readdirSync, statSync, unlinkSync } = fs;
 const { join } = path;
-
-const canalId: string[] = ["120363266665814365@newsletter"];
-const canalNombre: string[] = ["🪼 Cyrene Ultra 2.0 BOT 🪼"];
-
-function setupConnection(conn: any): void {
-  conn.sendMessage2 = async (chat: string, content: any, m: any, options: any = {}) => {
-    const firstChannel = { id: canalId[0], nombre: canalNombre[0] };
-    if (content.sticker) {
-      return conn.sendMessage(chat, { sticker: content.sticker }, { quoted: m, ...options });
-    }
-    const messageOptions = {
-      ...content,
-      mentions: content.mentions || options.mentions || [],
-      contextInfo: {
-        ...(content.contextInfo || {}),
-        forwardedNewsletterMessageInfo: {
-          newsletterJid: firstChannel.id,
-          serverMessageId: "",
-          newsletterName: firstChannel.nombre,
-        },
-        forwardingScore: 9999999,
-        isForwarded: true,
-        mentionedJid: content.mentions || options.mentions || [],
-      },
-    };
-    return conn.sendMessage(chat, messageOptions, {
-      quoted: m,
-      ephemeralExpiration: 86400000,
-      disappearingMessagesInChat: 86400000,
-      ...options,
-    });
-  };
-}
 
 global.opts = new Object(
   yargsFactory(process.argv.slice(2)).exitProcess(false).parse()
@@ -146,7 +112,6 @@ setInterval(async () => {
       };
 
       const sock = makeWASocket(socketSettings);
-      setupConnection(sock);
 
       if (!fs.existsSync("./sessions/creds.json") && method === "2") {
         let phoneNumber = await question("😎Fino vamos aya😎: ");
@@ -221,4 +186,4 @@ setInterval(async () => {
   await startBot();
 })();
 
-        
+

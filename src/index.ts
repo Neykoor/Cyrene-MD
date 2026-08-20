@@ -159,7 +159,7 @@ setInterval(async () => {
           if (messageText.startsWith(global.prefix)) {
             const command = messageText.slice(global.prefix.length).trim().split(" ")[0];
             const args = messageText.slice(global.prefix.length + command.length).trim().split(" ");
-            handleCommand(sock, msg, command, args, sender);
+            await handleCommand(sock, msg, command, args, sender);
           }
         } catch (error) {
           console.error("❌ Error en messages.upsert:", error);

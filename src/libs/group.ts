@@ -39,3 +39,17 @@ export async function getBotAdminStatus(sock: any, chatId: string): Promise<Grou
 
   return { isGroup: true, isBotAdmin: admin, isBotSuperAdmin: superAdmin, botJid };
 }
+
+export async function isSenderGroupAdmin(sock: any, chatId: string, sender: string): Promise<boolean> {
+  if (!chatId.endsWith("@g.us")) return false;
+
+  const groupMetadata = await sock.groupMetadata(chatId);
+  const participants: any[] = groupMetadata?.participants || [];
+
+  const participant = participants.find(
+    (p) => normalizeJid(p?.id) === normalizeJid(sender)
+  );
+
+  const { admin } = participantIsAdmin(participant);
+  return admin;
+}

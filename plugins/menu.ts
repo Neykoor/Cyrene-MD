@@ -15,7 +15,9 @@ function resolveMediaPath(filename: string): string | undefined {
 
   if (!found) {
     console.error(
-      `[menu] no se encontró "${filename}". Rutas probadas:\n${candidates.join("\n")}`
+      `[menu] no se encontró "${filename}". Rutas probadas:\n${candidates.join(
+        "\n"
+      )}`
     );
   }
 
@@ -38,7 +40,10 @@ async function getLocalFallbackThumbnail(): Promise<Buffer | undefined> {
   try {
     cachedFallbackThumbnail = await sharp(raw)
       .resize(120, 120, { fit: "cover" })
-      .jpeg({ quality: 60, progressive: false })
+      .jpeg({
+        quality: 60,
+        progressive: false,
+      })
       .toBuffer();
   } catch {
     cachedFallbackThumbnail = raw;
@@ -50,17 +55,28 @@ async function getLocalFallbackThumbnail(): Promise<Buffer | undefined> {
 async function getOrderThumbnail(): Promise<Buffer | undefined> {
   try {
     const raw = await fetchRandomPinterestImage();
+
     return await sharp(raw)
       .resize(120, 120, { fit: "cover" })
-      .jpeg({ quality: 60, progressive: false })
+      .jpeg({
+        quality: 60,
+        progressive: false,
+      })
       .toBuffer();
   } catch (err) {
-    console.error("[menu] no se pudo traer imagen de Pinterest, uso el fallback local:", err);
+    console.error(
+      "[menu] no se pudo traer imagen de Pinterest, uso el fallback local:",
+      err
+    );
+
     return getLocalFallbackThumbnail();
   }
 }
 
-function formatRAM(): { used: string; total: string } {
+function formatRAM(): {
+  used: string;
+  total: string;
+} {
   const totalBytes = os.totalmem();
   const freeBytes = os.freemem();
   const usedBytes = totalBytes - freeBytes;
@@ -111,46 +127,50 @@ async function sendMainMenu(
   startedAt: number
 ): Promise<void> {
   const chatId: string = msg.key.remoteJid;
+
   const isGroup = chatId.endsWith("@g.us");
+
   const senderJid: string = isGroup
     ? msg.key.participant || msg.key.remoteJid
     : msg.key.remoteJid;
 
   let groupName = "Chat privado";
+
   if (isGroup) {
     try {
       const groupMetadata = await sock.groupMetadata(chatId);
+
       groupName = groupMetadata?.subject || "este grupo";
     } catch (err) {
-      console.error("[menu] no se pudo obtener el nombre del grupo:", err);
+      console.error(
+        "[menu] no se pudo obtener el nombre del grupo:",
+        err
+      );
+
       groupName = "este grupo";
     }
   }
 
   const ram = formatRAM();
+
   const responseMs = (Date.now() - startedAt).toFixed(2);
 
   const caption =
-    `❀  Hola @${senderJid.split("@")[0]}, soy Cyrene, ¿en qué puedo ayudarte?\n` +
-    `ꕤ Grupo: ${groupName}\n` +
-    "✿ Selecciona una opción para continuar ↝\n\n" +
-    `⌁ Ping: ${responseMs} ms\n` +
-    `⌁ RAM: ${ram.used}/${ram.total} MB\n` +
-    `⌁ Uptime: ${formatUptime(process.uptime())}\n` +
-    `⌁ Kernel: ${os.release()}`;
+    `❀ Hola @${senderJid.split("@")[0]}, soy Cyrene\n` +
+    "⌁ Tu asistente virtual\n\n" +
+    `♧ Grupo › ${groupName}\n\n` +
+    `✦ Ping › ${responseMs} ms\n` +
+    `◈ RAM › ${ram.used}/${ram.total} MB\n` +
+    `⌂ Uptime › ${formatUptime(process.uptime())}\n` +
+    `◇ Kernel › ${os.release()}\n\n` +
+    "❖ Pulsa el botón para actualizar";
 
   const interactiveButtons = [
     {
       name: "quick_reply",
+
       buttonParamsJson: JSON.stringify({
-        display_text: "☰ 🏓 Ping",
-        id: "menu_ping",
-      }),
-    },
-    {
-      name: "quick_reply",
-      buttonParamsJson: JSON.stringify({
-        display_text: "☰ 📋 Menú",
+        display_text: "❀ Menú",
         id: "menu_main",
       }),
     },
@@ -161,6 +181,7 @@ async function sendMainMenu(
     subtitle: "𖤐 Asistente Virtual",
     interactiveButtons,
     mentions: [senderJid],
+
     contextInfo: {
       mentionedJid: [senderJid],
     },
@@ -181,7 +202,10 @@ async function sendMainMenu(
   });
 }
 
-export async function sendMenu(sock: any, msg: any): Promise<void> {
+export async function sendMenu(
+  sock: any,
+  msg: any
+): Promise<void> {
   const startedAt = Date.now();
 
   await sendMainMenu(sock, msg, startedAt);

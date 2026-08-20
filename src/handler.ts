@@ -2,7 +2,7 @@ import { sendMenu } from "../plugins/menu";
 import { sendPing } from "../plugins/ping";
 import { sendSticker } from "../plugins/sticker";
 import { sendPinterestImage } from "../plugins/pinterest";
-import { sendPlay } from "../plugins/play";
+import { sendPlay, downloadAndSend } from "../plugins/play";
 
 export async function handleCommand(
   sock: any,
@@ -42,6 +42,22 @@ export async function handleButtonClick(
   buttonId: string
 ): Promise<void> {
   console.log(`[handler] Botón presionado: ${buttonId}`);
+
+  if (buttonId.startsWith("play_mp3_") || buttonId.startsWith("play_mp4_")) {
+    const isVideo = buttonId.startsWith("play_mp4_");
+    const prefix = isVideo ? "play_mp4_" : "play_mp3_";
+    const url = decodeURIComponent(buttonId.slice(prefix.length));
+
+    if (!/^https?:\/\/\S+/i.test(url)) {
+      await sock.sendMessage(msg.key.remoteJid, {
+        text: "✦ Enlace no válido, vuelve a probar con .play",
+      });
+      return;
+    }
+
+    await downloadAndSend(sock, msg, url, isVideo ? "mp4" : "mp3");
+    return;
+  }
 
   if (buttonId === "menu_main") {
     await sendMenu(sock, msg);

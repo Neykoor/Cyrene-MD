@@ -129,12 +129,14 @@ async function downloadMedia(
   sock: any,
   chatId: string,
   queryOrUrl: string,
-  quotedMsg: any
+  quotedMsg: any,
+  format: "mp3" | "mp4" = "mp3"
 ): Promise<void> {
   try {
+    const isVideo = format === "mp4";
     const sent = await sock.sendMessage(
       chatId,
-      { text: "❀ Descargando audio..." },
+      { text: isVideo ? "❀ Descargando video..." : "❀ Descargando audio..." },
       { quoted: quotedMsg }
     );
 
@@ -144,7 +146,7 @@ async function downloadMedia(
     if (r.status !== 200 || !r.data) {
       await sock.sendMessage(
         chatId,
-        { text: `✦ Error HTTP ${r.status} al procesar el audio.` },
+        { text: `✦ Error HTTP ${r.status} al procesar el ${format}.` },
         { quoted: quotedMsg }
       );
       return;
@@ -152,32 +154,42 @@ async function downloadMedia(
 
     const data: any = r.data;
     const firstItem = data?.result?.[0];
-    const fileUrl =
-      firstItem?.download?.mp3 ||
-      firstItem?.downloads?.mp3?.url ||
-      firstItem?.downloads?.mixed?.mp3 ||
-      firstItem?.dl?.mp3?.url ||
-      firstItem?.download?.url;
+    const fileUrl = isVideo
+      ? firstItem?.download?.mp4 ||
+        firstItem?.downloads?.mp4?.url ||
+        firstItem?.downloads?.mixed?.mp4 ||
+        firstItem?.dl?.mp4?.url
+      : firstItem?.download?.mp3 ||
+        firstItem?.downloads?.mp3?.url ||
+        firstItem?.downloads?.mixed?.mp3 ||
+        firstItem?.dl?.mp3?.url ||
+        firstItem?.download?.url;
 
     if (!data?.status || !firstItem || !fileUrl) {
       await sock.sendMessage(
         chatId,
-        { text: "✦ No se pudo obtener el archivo de audio." },
+        { text: `✦ No se pudo obtener el archivo de ${format}.` },
         { quoted: quotedMsg }
       );
       return;
     }
 
-    const fileTitle = cleanName(firstItem.title || "audio");
+    const fileTitle = cleanName(firstItem.title || format);
 
     await sock.sendMessage(
       chatId,
-      {
-        audio: { url: fileUrl },
-        mimetype: "audio/mpeg",
-        fileName: `${fileTitle}.mp3`,
-        ptt: false,
-      },
+      isVideo
+        ? {
+            video: { url: fileUrl },
+            mimetype: "video/mp4",
+            caption: `❀ Video descargado ✓\n\n✦ Título › _${fileTitle}_`,
+          }
+        : {
+            audio: { url: fileUrl },
+            mimetype: "audio/mpeg",
+            fileName: `${fileTitle}.mp3`,
+            ptt: false,
+          },
       { quoted: await buildFakeOrderQuote() }
     );
 
@@ -197,6 +209,16 @@ async function downloadMedia(
       text: `✦ Error durante la descarga › ${err.message}`,
     });
   }
+}
+
+export async function downloadAndSend(
+  sock: any,
+  msg: any,
+  url: string,
+  format: "mp3" | "mp4"
+): Promise<void> {
+  const chatId: string = msg.key.remoteJid;
+  await downloadMedia(sock, chatId, url, msg, format);
 }
 
 export async function sendPlay(
@@ -280,7 +302,7 @@ export async function sendPlay(
       `◈ Vistas › ${formatViews(views)}\n` +
       `⌂ Duración › ${durationTimestamp}\n` +
       `◇ Enlace › ${url}\n\n` +
-      "❖ Procesando tu canción...";
+      "❖ Elige el formato de descarga:";
 
     const content: any = {
       caption,
@@ -289,6 +311,22 @@ export async function sendPlay(
       contextInfo: {
         mentionedJid: [senderJid],
       },
+      interactiveButtons: [
+        {
+          name: "quick_reply",
+          buttonParamsJson: JSON.stringify({
+            display_text: "🎵 MP3",
+            id: `play_mp3_${encodeURIComponent(url)}`,
+          }),
+        },
+        {
+          name: "quick_reply",
+          buttonParamsJson: JSON.stringify({
+            display_text: "🎬 MP4",
+            id: `play_mp4_${encodeURIComponent(url)}`,
+          }),
+        },
+      ],
     };
 
     if (thumbnail) {
@@ -304,7 +342,6 @@ export async function sendPlay(
     const quotedOrder = await buildFakeOrderQuote();
 
     await sock.sendMessage(chatId, content, { quoted: quotedOrder });
-    await downloadMedia(sock, chatId, url, quotedOrder);
   } catch (err: any) {
     console.error("[play] error principal:", err);
     await sock.sendMessage(chatId, {

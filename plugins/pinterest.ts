@@ -1,0 +1,47 @@
+import { searchPinterestImages } from "../src/libs/scraper";
+
+export async function sendPinterestImage(
+  sock: any,
+  msg: any,
+  args: string[]
+): Promise<void> {
+  const chatId: string = msg.key.remoteJid;
+
+  const query = args.join(" ").trim();
+
+  if (!query) {
+    await sock.sendMessage(
+      chatId,
+      {
+        text:
+          "📌 Uso incorrecto del comando.\n\n" +
+          "Escribe *.pin* seguido de lo que quieras buscar.\n\n" +
+          "Ejemplo:\n*.pin cyrene*",
+      },
+      { quoted: msg }
+    );
+    return;
+  }
+
+  try {
+    const urls = await searchPinterestImages(query);
+    const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+
+    await sock.sendMessage(
+      chatId,
+      {
+        image: { url: randomUrl },
+        caption: `📌 Resultado para: *${query}*`,
+      },
+      { quoted: msg }
+    );
+  } catch (err: any) {
+    await sock.sendMessage(
+      chatId,
+      {
+        text: `❌ No se encontraron imágenes para "${query}".\n${err.message || ""}`,
+      },
+      { quoted: msg }
+    );
+  }
+}

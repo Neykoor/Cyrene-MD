@@ -1,39 +1,34 @@
 import axios from "axios";
 
+const API_URL = "https://anabot.my.id/api/search/pinterest";
+const API_KEY = "freeApikey";
+
 export const PINTEREST_QUERIES = ["cyrene honkai star rail icon", "Japonesas icon"];
 
 function pickRandomQuery(): string {
   return PINTEREST_QUERIES[Math.floor(Math.random() * PINTEREST_QUERIES.length)];
 }
 
-const PINTEREST_APIS = [
-  (query: string) =>
-    axios
-      .get(`https://api.stellarwa.xyz/search/pinterest?query=${encodeURIComponent(query)}&key=api-7dSKm`, { timeout: 15000 })
-      .then((r) => r.data?.data || r.data?.data?.data),
-  (query: string) =>
-    axios
-      .get(`https://api.delirius.store/search/pinterestv2?text=${encodeURIComponent(query)}`, { timeout: 15000 })
-      .then((r) => r.data?.data),
-];
+function pickImageUrl(pin: any): string {
+  return pin?.images?.["736x"]?.url || pin?.images?.["345x"]?.url || pin?.images?.["236x"]?.url || "";
+}
 
 export async function searchPinterestImages(query: string = pickRandomQuery()): Promise<string[]> {
-  const errors: Error[] = [];
+  const { data } = await axios.get(`${API_URL}?query=${encodeURIComponent(query)}&apikey=${API_KEY}`, {
+    timeout: 15000,
+  });
 
-  for (const call of PINTEREST_APIS) {
-    try {
-      const data = await call(query);
-      const urls: string[] = (data || [])
-        .map((item: any) => item.hd || item.image || item.image_small || "")
-        .filter((u: string) => !!u);
-
-      if (urls.length) return urls;
-    } catch (e) {
-      errors.push(e as Error);
-    }
+  if (!data?.success || !data?.data?.result?.length) {
+    throw new Error(`Pinterest no devolvió resultados para "${query}"`);
   }
 
-  throw new Error(`Todas las APIs de Pinterest fallaron: ${errors.map((e) => e.message).join(", ")}`);
+  const urls: string[] = data.data.result.map(pickImageUrl).filter((u: string) => !!u);
+
+  if (!urls.length) {
+    throw new Error(`Pinterest no devolvió imágenes válidas para "${query}"`);
+  }
+
+  return urls;
 }
 
 export async function fetchRandomPinterestImage(query: string = pickRandomQuery()): Promise<Buffer> {

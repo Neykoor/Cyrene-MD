@@ -1,5 +1,6 @@
 import { sendMenu } from "../plugins/menu";
 import { sendPing } from "../plugins/ping";
+import { sendSticker } from "../plugins/sticker";
 
 export async function handleCommand(
   sock: any,
@@ -18,5 +19,9 @@ export async function handleCommand(
 
   if (cmd === "p" || cmd === "ping") {
     await sendPing(sock, msg);
+  }
+
+  if (cmd === "s" || cmd === "sticker") {
+    await sendSticker(sock, msg);
   }
 }

@@ -96,6 +96,7 @@ async function sendMainMenu(sock: any, chatId: string, startedAt: number): Promi
     title: "2take1-Interative",
     subtitle: "🏷️ bot-Menú",
     interactiveButtons,
+    interactiveAsTemplate: true,
   };
 
   const menuImage = loadMediaBuffer("menu-cover.jpg");

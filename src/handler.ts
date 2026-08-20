@@ -6,8 +6,7 @@ export async function handleCommand(
   msg: any,
   command: string,
   args: string[],
-  sender: string,
-  startedAt: number = Date.now()
+  sender: string
 ): Promise<void> {
   console.log(`[handler] Comando recibido: ${command} | args: ${args.join(" ")} | de: ${sender}`);
 
@@ -18,6 +17,6 @@ export async function handleCommand(
   }
 
   if (cmd === "p" || cmd === "ping") {
-    await sendPing(sock, msg, startedAt);
+    await sendPing(sock, msg);
   }
 }

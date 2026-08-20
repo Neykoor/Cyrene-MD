@@ -1,5 +1,3 @@
-Cyrene-MD
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/Neykoor/Cyrene-MD/main/media/logo.png" width="180" alt="Cyrene-MD">
 </p><h1 align="center">Cyrene-MD</h1><p align="center">

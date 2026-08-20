@@ -1,4 +1,4 @@
-import { searchPinterestImages } from "../src/libs/scraper";
+import { getRandomPinterestImage } from "../src/libs/scraper";
 
 export async function sendPinterestImage(
   sock: any,
@@ -24,13 +24,12 @@ export async function sendPinterestImage(
   }
 
   try {
-    const urls = await searchPinterestImages(query);
-    const randomUrl = urls[Math.floor(Math.random() * urls.length)];
+    const { buffer } = await getRandomPinterestImage(query);
 
     await sock.sendMessage(
       chatId,
       {
-        image: { url: randomUrl },
+        image: buffer,
         caption: `📌 Resultado para: *${query}*`,
       },
       { quoted: msg }

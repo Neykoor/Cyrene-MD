@@ -107,15 +107,33 @@ async function buildFakeOrderQuote(): Promise<any> {
 
 async function sendMainMenu(
   sock: any,
-  chatId: string,
+  msg: any,
   startedAt: number
 ): Promise<void> {
+  const chatId: string = msg.key.remoteJid;
+  const isGroup = chatId.endsWith("@g.us");
+  const senderJid: string = isGroup
+    ? msg.key.participant || msg.key.remoteJid
+    : msg.key.remoteJid;
+
+  let groupName = "Chat privado";
+  if (isGroup) {
+    try {
+      const groupMetadata = await sock.groupMetadata(chatId);
+      groupName = groupMetadata?.subject || "este grupo";
+    } catch (err) {
+      console.error("[menu] no se pudo obtener el nombre del grupo:", err);
+      groupName = "este grupo";
+    }
+  }
+
   const ram = formatRAM();
   const responseMs = (Date.now() - startedAt).toFixed(2);
 
   const caption =
-    "▢ Hola, soy Cyrene, ¿en qué puedo ayudarte?\n" +
-    "ℹ️ Selecciona una opción para continuar ↝\n\n" +
+    `❀  Hola @${senderJid.split("@")[0]}, soy Cyrene, ¿en qué puedo ayudarte?\n` +
+    `ꕤ Grupo: ${groupName}\n` +
+    "✿ Selecciona una opción para continuar ↝\n\n" +
     `⌁ Ping: ${responseMs} ms\n` +
     `⌁ RAM: ${ram.used}/${ram.total} MB\n` +
     `⌁ Uptime: ${formatUptime(process.uptime())}\n` +
@@ -125,8 +143,8 @@ async function sendMainMenu(
     {
       name: "quick_reply",
       buttonParamsJson: JSON.stringify({
-        display_text: "☰ ATTAÇKE 🕷️",
-        id: "menu_attacke",
+        display_text: "☰ 🏓 Ping",
+        id: "menu_ping",
       }),
     },
     {
@@ -140,9 +158,12 @@ async function sendMainMenu(
 
   const content: any = {
     caption,
-    title: "Cyrene",
     subtitle: "𖤐 Asistente Virtual",
     interactiveButtons,
+    mentions: [senderJid],
+    contextInfo: {
+      mentionedJid: [senderJid],
+    },
   };
 
   const menuImage = loadMediaBuffer("menu-cover.jpg");
@@ -161,8 +182,7 @@ async function sendMainMenu(
 }
 
 export async function sendMenu(sock: any, msg: any): Promise<void> {
-  const chatId: string = msg.key.remoteJid;
   const startedAt = Date.now();
 
-  await sendMainMenu(sock, chatId, startedAt);
+  await sendMainMenu(sock, msg, startedAt);
 }

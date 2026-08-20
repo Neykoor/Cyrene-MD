@@ -33,10 +33,6 @@ export async function handleButtonClick(
 ): Promise<void> {
   console.log(`[handler] Botón presionado: ${buttonId}`);
 
-  if (buttonId === "menu_ping") {
-    await sendPing(sock, msg);
-  }
-
   if (buttonId === "menu_main") {
     await sendMenu(sock, msg);
   }

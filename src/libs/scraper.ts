@@ -9,15 +9,11 @@ function pickRandomQuery(): string {
 const PINTEREST_APIS = [
   (query: string) =>
     axios
-      .get(`https://api.stellarwa.xyz/search/pinterest?query=${encodeURIComponent(query)}&key=api-7dSKm`, { timeout: 8000 })
+      .get(`https://api.stellarwa.xyz/search/pinterest?query=${encodeURIComponent(query)}&key=api-7dSKm`, { timeout: 15000 })
       .then((r) => r.data?.data || r.data?.data?.data),
   (query: string) =>
     axios
-      .get(`https://rest.apicausas.xyz/api/v1/buscadores/pinterest?apikey=oboe&q=${encodeURIComponent(query)}`, { timeout: 8000 })
-      .then((r) => r.data?.data),
-  (query: string) =>
-    axios
-      .get(`https://api.delirius.store/search/pinterestv2?text=${encodeURIComponent(query)}`, { timeout: 8000 })
+      .get(`https://api.delirius.store/search/pinterestv2?text=${encodeURIComponent(query)}`, { timeout: 15000 })
       .then((r) => r.data?.data),
 ];
 

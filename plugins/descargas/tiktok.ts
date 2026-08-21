@@ -16,6 +16,13 @@ const FETCH_HEADERS = {
   Referer: "https://www.tiktok.com/",
 };
 
+const USAGE_TEXT =
+  "❀ Uso incorrecto del comando.\n\n" +
+  "Escribe *.tiktok* seguido de un enlace o de un texto para buscar.\n\n" +
+  "Ejemplos:\n" +
+  "*.tiktok https://www.tiktok.com/@usuario/video/1234567890*\n" +
+  "*.tiktok gatos graciosos*";
+
 function extractTiktokUrl(text: string): string | null {
   const match = text.match(TIKTOK_URL_REGEX);
   return match ? match[0] : null;
@@ -67,6 +74,36 @@ async function fetchBuffer(url: string): Promise<Buffer> {
   return Buffer.from(res.data);
 }
 
+async function resolveTiktokUrl(
+  sock: any,
+  chatId: string,
+  rawText: string,
+  editKey?: any
+): Promise<string | null> {
+  const directUrl = extractTiktokUrl(rawText);
+  if (directUrl) return directUrl;
+
+  const search = await tiktokClient.search(rawText, { resultLimit: 1 });
+
+  if (search.error || !search.data || !search.data.length) {
+    const text = `✦ No encontré ningún video de TikTok para "${rawText}".`;
+
+    if (editKey) {
+      try {
+        await sock.sendMessage(chatId, { text, edit: editKey });
+        return null;
+      } catch {}
+    }
+
+    await sock.sendMessage(chatId, { text });
+    return null;
+  }
+
+  const best = search.data[0];
+  const uniqueId = best.author?.uniqueId || "tiktok";
+  return `https://www.tiktok.com/@${uniqueId}/video/${best.id}`;
+}
+
 export async function sendTiktok(
   sock: any,
   msg: any,
@@ -74,27 +111,35 @@ export async function sendTiktok(
 ): Promise<void> {
   const chatId: string = msg.key.remoteJid;
   const rawText = args.join(" ").trim();
-  const url = extractTiktokUrl(rawText);
 
-  if (!url) {
-    await sock.sendMessage(
-      chatId,
-      {
-        text:
-          "❀ Uso incorrecto del comando.\n\n" +
-          "Escribe *.tiktok* seguido del enlace del video.\n\n" +
-          "Ejemplo:\n*.tiktok https://www.tiktok.com/@usuario/video/1234567890*",
-      },
-      { quoted: msg }
-    );
+  if (!rawText) {
+    await sock.sendMessage(chatId, { text: USAGE_TEXT }, { quoted: msg });
     return;
   }
 
+  const isDirectUrl = Boolean(extractTiktokUrl(rawText));
+
   const sent = await sock.sendMessage(
     chatId,
-    { text: "❀ Descargando de TikTok..." },
+    {
+      text: isDirectUrl
+        ? "❀ Descargando de TikTok..."
+        : `❀ Buscando "${rawText}" en TikTok...`,
+    },
     { quoted: msg }
   );
+
+  const url = await resolveTiktokUrl(sock, chatId, rawText, sent?.key);
+  if (!url) return;
+
+  if (!isDirectUrl) {
+    try {
+      await sock.sendMessage(chatId, {
+        text: "❀ Descargando de TikTok...",
+        edit: sent?.key,
+      });
+    } catch {}
+  }
 
   try {
     const download = await tiktokClient.downloadVideo(url);

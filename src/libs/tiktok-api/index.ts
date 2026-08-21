@@ -11,6 +11,11 @@ export type {
 } from './api/downloadVideo/types';
 export type { TiktokChallengeResponse } from './api/getChallenge/types';
 export type {
+  TiktokSearchAPIResponse,
+  TiktokSearchResponse,
+  TiktokSearchResultEntry,
+} from './api/getSearch/types';
+export type {
   TiktokPostDetailAPIResponse,
   TiktokPostResponse,
 } from './api/getPost/types';

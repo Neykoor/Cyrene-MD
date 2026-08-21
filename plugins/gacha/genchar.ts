@@ -1,13 +1,9 @@
 import axios from "axios";
 import { isOwner } from "../../config";
 import { isSenderGroupAdmin } from "../../src/libs/group";
-import {
-  addCharacter,
-  characterExists,
-  getGroupRating,
-  setGroupRating,
-  GachaRating,
-} from "../../src/libs/gacha";
+import { addCharacter, characterExists } from "../../src/libs/gacha";
+
+const RATING = "questionable";
 
 const randomValue = (): number => Math.floor(Math.random() * (8000 - 3000 + 1) + 3000);
 const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,12 +19,6 @@ interface YanderePost {
   score?: number;
 }
 
-interface PendingRequest {
-  mode: "single" | "random";
-  seriesTag?: string;
-  extraTags?: string[];
-}
-
 interface GenerationResult {
   seriesName: string;
   agregados: string[];
@@ -36,8 +26,6 @@ interface GenerationResult {
   duplicados: string[];
   totalPosts: number;
 }
-
-const pendingRequests = new Map<string, PendingRequest>();
 
 function parseYandereUrl(input: string): { seriesTag: string; extraTags: string[] } | null {
   try {
@@ -66,13 +54,8 @@ function hasExcludedTag(tagString: string): boolean {
   return tags.some((t) => EXCLUDED_TAGS.has(t));
 }
 
-async function fetchPostsBatch(
-  seriesTag: string,
-  extraTags: string[],
-  rating: GachaRating,
-  page: number
-): Promise<YanderePost[]> {
-  const baseTags = [seriesTag, ...extraTags, `rating:${rating}`].join(" ");
+async function fetchPostsBatch(seriesTag: string, extraTags: string[], page: number): Promise<YanderePost[]> {
+  const baseTags = [seriesTag, ...extraTags, `rating:${RATING}`].join(" ");
   const url = `https://yande.re/post.json?tags=${encodeURIComponent(baseTags)}&limit=100&page=${page}`;
 
   try {
@@ -172,7 +155,6 @@ async function runGeneration(
   chatId: string,
   seriesTag: string,
   extraTags: string[],
-  rating: GachaRating,
   pages: number
 ): Promise<GenerationResult> {
   const seriesName = tagToSeriesName(seriesTag);
@@ -183,7 +165,7 @@ async function runGeneration(
       text: `📦 Tanda ${page}/${pages} › descargando posts de *${seriesName}*...`,
     });
 
-    const batch = await fetchPostsBatch(seriesTag, extraTags, rating, page);
+    const batch = await fetchPostsBatch(seriesTag, extraTags, page);
     if (batch.length === 0) break;
 
     posts.push(...batch);
@@ -264,43 +246,10 @@ async function fetchRandomSeriesTags(cantidad: number): Promise<string[]> {
   }
 }
 
-function ratingLabel(rating: GachaRating): string {
-  return rating === "safe" ? "🟢 Safe" : "🟡 Questionable";
-}
-
-function extractSender(msg: any): string {
-  return msg.key.participant
-    ? msg.key.participant.replace(/[^0-9]/g, "")
-    : msg.key.remoteJid.replace(/[^0-9]/g, "");
-}
-
 function getInvokedCommand(msg: any): string {
   const messageText: string = msg.message?.conversation || msg.message?.extendedTextMessage?.text || "";
   if (!messageText.startsWith(global.prefix)) return "";
   return messageText.slice(global.prefix.length).trim().split(" ")[0].toLowerCase();
-}
-
-async function sendRatingPrompt(sock: any, msg: any, chatId: string): Promise<void> {
-  await sock.sendMessage(
-    chatId,
-    {
-      text:
-        "⚙️ *Configuración del gacha requerida*\n\n" +
-        "Antes de generar personajes, un administrador del grupo debe elegir el nivel de contenido que usará *genchar* aquí:",
-      footer: "Cyrene · Gacha",
-      interactiveButtons: [
-        {
-          name: "quick_reply",
-          buttonParamsJson: JSON.stringify({ display_text: "🟢 Safe", id: "genchar_rating_safe" }),
-        },
-        {
-          name: "quick_reply",
-          buttonParamsJson: JSON.stringify({ display_text: "🟡 Questionable", id: "genchar_rating_questionable" }),
-        },
-      ],
-    },
-    { quoted: msg }
-  );
 }
 
 async function requireAdmin(sock: any, msg: any, chatId: string, sender: string): Promise<boolean> {
@@ -329,47 +278,40 @@ async function reportResult(sock: any, chatId: string, res: GenerationResult): P
   await sock.sendMessage(chatId, { text: lines.join("\n") });
 }
 
-async function runSingleFlow(
-  sock: any,
-  msg: any,
-  chatId: string,
-  rating: GachaRating,
-  seriesTag: string,
-  extraTags: string[]
-): Promise<void> {
-  await sock.sendMessage(chatId, { text: "⏳ Extrayendo personajes..." });
-  const res = await runGeneration(sock, chatId, seriesTag, extraTags, rating, 5);
-  await reportResult(sock, chatId, res);
-}
-
-async function runRandomFlow(sock: any, msg: any, chatId: string, rating: GachaRating): Promise<void> {
-  const tags = await fetchRandomSeriesTags(5);
-
-  if (tags.length === 0) {
+async function runSingleFlow(sock: any, msg: any, chatId: string, seriesTag: string, extraTags: string[]): Promise<void> {
+  try {
+    await sock.sendMessage(chatId, { text: "⏳ Extrayendo personajes..." });
+    const res = await runGeneration(sock, chatId, seriesTag, extraTags, 5);
+    await reportResult(sock, chatId, res);
+  } catch (e: any) {
     await sock.sendMessage(
       chatId,
-      { text: "❌ Yande.re rechazó la conexión. Espera unos minutos." },
+      { text: `❌ Hubo un error inesperado al generar: ${e.message}` },
       { quoted: msg }
     );
-    return;
   }
-
-  for (let i = 0; i < tags.length; i++) {
-    await sock.sendMessage(chatId, { text: `⏳ Serie ${i + 1}/${tags.length} › *${tagToSeriesName(tags[i])}*` });
-    const res = await runGeneration(sock, chatId, tags[i], [], rating, 5);
-    await reportResult(sock, chatId, res);
-  }
-
-  await sock.sendMessage(chatId, { text: "✅ Proceso *genrandom* completado." }, { quoted: msg });
 }
 
-async function executeFlow(sock: any, msg: any, chatId: string, rating: GachaRating, req: PendingRequest): Promise<void> {
+async function runRandomFlow(sock: any, msg: any, chatId: string): Promise<void> {
   try {
-    if (req.mode === "random") {
-      await runRandomFlow(sock, msg, chatId, rating);
-    } else if (req.seriesTag) {
-      await runSingleFlow(sock, msg, chatId, rating, req.seriesTag, req.extraTags || []);
+    const tags = await fetchRandomSeriesTags(5);
+
+    if (tags.length === 0) {
+      await sock.sendMessage(
+        chatId,
+        { text: "❌ Yande.re rechazó la conexión. Espera unos minutos." },
+        { quoted: msg }
+      );
+      return;
     }
+
+    for (let i = 0; i < tags.length; i++) {
+      await sock.sendMessage(chatId, { text: `⏳ Serie ${i + 1}/${tags.length} › *${tagToSeriesName(tags[i])}*` });
+      const res = await runGeneration(sock, chatId, tags[i], [], 5);
+      await reportResult(sock, chatId, res);
+    }
+
+    await sock.sendMessage(chatId, { text: "✅ Proceso *genrandom* completado." }, { quoted: msg });
   } catch (e: any) {
     await sock.sendMessage(
       chatId,
@@ -396,78 +338,24 @@ export async function handleGenCharCommand(
   const allowed = await requireAdmin(sock, msg, chatId, sender);
   if (!allowed) return;
 
-  let req: PendingRequest;
-
   if (command === "genrandom") {
-    req = { mode: "random" };
-  } else {
-    const parsed = parseYandereUrl(args.join(" "));
-    if (!parsed) {
-      await sock.sendMessage(chatId, { text: "❌ URL inválida. Usa un link de Yande.re." }, { quoted: msg });
-      return;
-    }
-    req = { mode: "single", seriesTag: parsed.seriesTag, extraTags: parsed.extraTags };
-  }
-
-  const rating = getGroupRating(chatId);
-
-  if (!rating) {
-    pendingRequests.set(chatId, req);
-    await sendRatingPrompt(sock, msg, chatId);
+    await runRandomFlow(sock, msg, chatId);
     return;
   }
 
-  await executeFlow(sock, msg, chatId, rating, req);
-}
-
-export async function handleGenCharButton(sock: any, msg: any, buttonId: string): Promise<void> {
-  const chatId: string = msg.key.remoteJid;
-
-  const rating: GachaRating | null =
-    buttonId === "genchar_rating_safe" ? "safe" : buttonId === "genchar_rating_questionable" ? "questionable" : null;
-  if (!rating) return;
-
-  const sender = extractSender(msg);
-  const allowed = isOwner(sender) || (await isSenderGroupAdmin(sock, chatId, sender));
-
-  if (!allowed) {
-    await sock.sendMessage(
-      chatId,
-      { text: "❌ Solo un administrador del grupo puede configurar esto." },
-      { quoted: msg }
-    );
+  const parsed = parseYandereUrl(args.join(" "));
+  if (!parsed) {
+    await sock.sendMessage(chatId, { text: "❌ URL inválida. Usa un link de Yande.re." }, { quoted: msg });
     return;
   }
 
-  setGroupRating(chatId, rating, sender);
-  await sock.sendMessage(chatId, { text: `✅ Nivel de contenido configurado en ${ratingLabel(rating)} para este grupo.` });
-
-  const pending = pendingRequests.get(chatId);
-  if (!pending) return;
-
-  pendingRequests.delete(chatId);
-  await executeFlow(sock, msg, chatId, rating, pending);
+  await runSingleFlow(sock, msg, chatId, parsed.seriesTag, parsed.extraTags);
 }
 
-export const commands = ["genchar", "genrandom", "gacharating"];
+export const commands = ["genchar", "genrandom"];
 
 export async function run(sock: any, msg: any, args: string[], sender: string): Promise<void> {
-  const chatId: string = msg.key.remoteJid;
   const command = getInvokedCommand(msg);
-
-  if (command === "gacharating") {
-    if (!chatId.endsWith("@g.us")) {
-      await sock.sendMessage(chatId, { text: "❌ Este comando solo funciona dentro de un grupo." }, { quoted: msg });
-      return;
-    }
-
-    const allowed = await requireAdmin(sock, msg, chatId, sender);
-    if (!allowed) return;
-
-    pendingRequests.delete(chatId);
-    await sendRatingPrompt(sock, msg, chatId);
-    return;
-  }
-
   await handleGenCharCommand(sock, msg, args, sender, command);
 }
+  
